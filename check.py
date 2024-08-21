@@ -566,7 +566,7 @@ def Submit(event=None,Toplevel=None,codition=None,name_entry=None,amount_entry=N
             else:
                 
             #  BankOperations.withdraw() is a function that handles the withdrawal process
-                details = BankOperations.withdraw(int(ac_No.get()), int(init_balance.get()), sign.get(),AC_type.getz)
+                details = BankOperations.withdraw(int(ac_No.get()), int(init_balance.get()), sign.get(),AC_type.get())
                 if details == 0:
                     close_toplevel(Toplevel)
                

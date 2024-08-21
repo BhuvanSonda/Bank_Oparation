@@ -1276,20 +1276,6 @@ def Acounts():
     mini.resizable(True,True)
     mini.mainloop()
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 # for creat Bank Operation  main window
 window = tk.Tk()
 
