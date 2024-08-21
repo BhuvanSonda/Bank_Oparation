@@ -892,6 +892,7 @@ def withdraw_amount():
 
     mini.grab_set()  # to freeze the buttons in the main window until the toplevel window is closed
     mini.mainloop()
+
 #function for check button in main window
 def check_account():
 
@@ -948,6 +949,7 @@ def check_account():
     M=tk.Toplevel()
     mini=M
     tk.Label(mini,text='Fill the below Information for Check A/C details :',font=("Arial",15,'bold')).grid(row=0,column=0,padx=10,pady=10,columnspan=2)
+    
     #to create lables and entry box
     ac_no=tk.Label(mini,text='Enter Acount Number :',font=("Arial",10))
     ac_no.grid(row=1,column=0,padx=10,pady=10)
@@ -961,9 +963,6 @@ def check_account():
 
     invalid_msg = tk.Label(mini, text="", fg="red")
     invalid_msg.grid(row=2,column=0,padx=10,pady=10,columnspan=2)
-
-     
-
     entries = [ ac_no_entry]
 
 # Bind the Enter key event to move focus
