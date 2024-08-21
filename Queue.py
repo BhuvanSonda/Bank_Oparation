@@ -1,0 +1,27 @@
+list=[]
+list.append(15)
+list.append(16)
+list.append(19)
+list.append(13)
+print(list)
+print(list.pop(0))
+print(list)
+print(list.pop(0))
+print(list)
+
+import collections
+
+list2= collections.deque()
+list2.append(25)
+list2.append(28)
+list2.append(98)
+list2.append(12)
+print(list2)
+print(list2.popleft())
+print(list2)
+print(list2.popleft())
+print(list2)
+print(list2.popleft())
+print(list2)
+print(list2.popleft())
+print(list2)
