@@ -153,19 +153,19 @@ class BankOperations:
                         return details
                     else:
                         if msg.askretrycancel("Error", f"Insufficient balance in A/C No: {ac_no}"):#if balance is low and enterd amount is high on that time this pop will apeare
-                            ac=1
+                            ac=4
                         else:
                             ac=0    
                         return ac
                 else:
                     if msg.askretrycancel("Error", f"Account No: {ac_no} Signature is not Matched!"):#if signature is mismatched on that time this pop will apeare
-                            ac=1
+                        ac=3
                     else:
                         ac=0    
                     return ac
             else:
                 if msg.askretrycancel("Error", f"Account No: {ac_no} is not match the Type of bank acount"):
-                    ac=1
+                    ac=2
                 else:
                     ac=0
                 return ac
@@ -174,7 +174,7 @@ class BankOperations:
 
         else:
             if msg.askretrycancel("Error", f"Account No: {ac_no} does not Exists!"):#if entered acount number is not existed then pop w.
-                ac=1
+                ac=2
             else:
                 ac=0    
             return ac
@@ -264,7 +264,7 @@ def Arrow_keys(event, entries):
 
 #function to Handle Enter key
 def focus_next_entry(event=None,entries=None,Toplevel=None,mobile_var=None,adhar_var=None,
-                     amount_var=None,name_var=None,sign_var=None,ac_no_var=None,check=None,Reason_var=None,ac_type=None):
+                     amount_var=None,name_var=None,sign_var=None,ac_no_var=None,check=None,Reason_var=None,ac_type=None,Msg=None):
     # Find the index of the current entry
     current_index = entries.index(event.widget)
     # Calculate the index of the next entry
@@ -289,27 +289,40 @@ def focus_next_entry(event=None,entries=None,Toplevel=None,mobile_var=None,adhar
             a=0
             return False
         else:
-            resp_createvalid_fun = create_valid(entries,Toplevel,mobile_var,adhar_var,amount_var,name_var,sign_var,ac_Type)
+            resp_createvalid_fun = create_valid(entries,Toplevel,mobile_var,adhar_var,amount_var,name_var,sign_var,ac_Type,Msg)
             print("validation in focus entry", resp_createvalid_fun)
 
 
     elif check=='credit':
-        print("***********entries >= 3***********")
-        withdraw_valid(entries,Toplevel,amount_var,ac_no_var,sign_var,ac_type)
+        amt=amount_var.get()
+        ac_no=ac_no_var.get()
+        sign=sign_var.get()
+
+        if amt=="" or ac_no=="" or sign=="" :
+            return False
+        else:
+            print("***********entries >= 3***********")
+            withdraw_valid(entries,Toplevel,amount_var,ac_no_var,sign_var,ac_type,Msg)
 
     elif check=='deposit':
-        print("***********entries == 2***********")
-        print(len(entries))
-        deposit_valid(entries,Toplevel,amount_var,ac_no_var)  
+        amt = amount_var.get()
+        ac_no = ac_no_var.get()
+        if amt=="" or ac_no=="" :
+            return False
+        else:
+            print("***********entries == 2***********")
+            print(len(entries))
+            deposit_valid(entries,Toplevel,amount_var,ac_no_var,Message=Msg)  
 
     elif check=='remove_ac':
         print("***********remove ac***********")
+        print('ac type value in remove ', ac_Type)
         remove_valid(entries,toplevel=Toplevel,mobile_no=mobile_var,adhar_no=adhar_var,
-                     ac_no_var=ac_no_var,name_var=name_var,sign_var=sign_var,Reason=Reason_var)
+                     ac_no_var=ac_no_var,name_var=name_var,sign_var=sign_var,Reason=Reason_var,AC_TYPE=ac_Type.get(),Message=Msg)
     return 'break'
 
 #valid checkup for create ac
-def create_valid(entries,toplevel=None,mobile_var=None,adhar_var=None,amount_var=None,name_var=None,sign_var=None,AC_TYPE=None):
+def create_valid(entries,toplevel=None,mobile_var=None,adhar_var=None,amount_var=None,name_var=None,sign_var=None,AC_TYPE=None,Message=None):
     global a
     a=1
     amt = amount_var.get()
@@ -317,76 +330,65 @@ def create_valid(entries,toplevel=None,mobile_var=None,adhar_var=None,amount_var
     adr = adhar_var.get()
     nm = name_var.get()
     sign = sign_var.get()
-    import winsound
+    invalids=Message #invalids=[name_invalid_msg, amount_invalid_msg, sign_invalid_msg, mobile_invalid_msg, adhar_invalid_msg]
 
-    invalid_msg = tk.Label(toplevel)
-    invalid_msg.grid(row=2, column=1, padx=20, pady=10)
     
     if not Validation.Name(nm):
         a = 0
         # invalid_msg = tk.Label(toplevel, text="Invalid Name", fg="red")
         #invalid_msg.grid(row=2, column=1, padx=10, pady=10)
-        invalid_msg.config(text="Invalid Name",fg="red")
+        invalids[0].config(text=" Invalid name",fg="red")
         entries[0].focus_set()
         return False
     else:
         print(f"a value in name validation is  = {a}")
-        invalid_msg.config(text="valid Name",fg="green")
+        invalids[0].config(text=" ",fg="green")
         print('invalid is valid now')
 
 
     
     # Validate Amount
     if not Validation.Amount(amt):
-        invalid_msg.config(text=" ",fg='green')
         print("amount validation",amt)
         a = 0
-        invalid_msg.grid(row=4, column=1, padx=10, pady=10)
-        invalid_msg.config(text="entered  amount must be digits",fg="red")
+        invalids[1].config(text="entered  amount must be digits",fg="red")
         entries[1].focus_set()
         return False
     else:
         print(f"a value in amount validation is  = {a}")
-        invalid_msg.grid(row=4, column=1, padx=10, pady=10)
-        invalid_msg.config(text=" ",fg='green')
+        invalids[1].config(text=" ",fg='green')
 
     if not Validation.Sign(sign):
         a=0
-        invalid_msg.grid(row=6, column=1, padx=10, pady=10)
-        invalid_msg.config(text="entered  amount must be digits",fg="red")
+        invalids[2].config(text="entered  amount must be digits",fg="red")
         entries[2].focus_set()
         return False
     else:
         print(f"a value in sign validation is  = {a}")
-        invalid_msg.grid(row=6, column=1, padx=10, pady=10)
-        invalid_msg.config(text=" ",fg='green')
+        invalids[2].config(text=" ",fg='green')
     
         # Validate Mobile Number
     if not Validation.Mobile(mbl):
         print("mobile validation",mbl)
         a = 0
-        invalid_msg.grid(row=8, column=1, padx=10, pady=10)
-        invalid_msg.config(text="entered  mobile number is not valid",fg="red")
+        invalids[3].config(text="entered  mobile number is not valid",fg="red")
         entries[3].focus_set()
         return False
     else:
         print(f"a value in mobile validation is  = {a}")
-        invalid_msg.grid(row=8, column=1, padx=10, pady=10)
-        invalid_msg.config(text=" ",fg='green')
+        invalids[3].config(text=" ",fg='green')
     
         # Validate Aadhar Number
     if not Validation.Adhar(adr):
         print("adhar validation",adr)
         a = 0
-        invalid_msg.grid(row=10, column=1, padx=10, pady=10)
-        invalid_msg.config(text="entered  Adhar number is not valid",fg="red")
+        invalids[4].config(text="entered  Adhar number is not valid",fg="red")
         entries[4].focus_set()
         return False
     else:
         print(f"a value is adhar validation is  = {a}")
         
-        invalid_msg.grid(row=10, column=1, padx=10, pady=10)
-        invalid_msg.config(text=" ",fg='green')
+        invalids[4].config(text=" ",fg='green')
     
     if a == 1:
         print("validation True")
@@ -401,12 +403,12 @@ def create_valid(entries,toplevel=None,mobile_var=None,adhar_var=None,amount_var
         entries[6].config(state='disabled')
 
 #valid checkup for Deposit amount
-def deposit_valid(entries,toplevel=None, amount_var=None, ac_no_var=None,Sub_btn=None):
+def deposit_valid(entries,toplevel=None, amount_var=None, ac_no_var=None,Sub_btn=None,Message=None):
     global a
     a=1
     amt=amount_var.get()
     ac_no=ac_no_var.get()
-    invalid_msg = tk.Label(toplevel)
+    invalid_msg = Message
 
     if amt=="" or ac_no=="" :
         a=0
@@ -414,54 +416,100 @@ def deposit_valid(entries,toplevel=None, amount_var=None, ac_no_var=None,Sub_btn
 
     if not Validation.Amount(amt):
         a = 0
-        invalid_msg.grid(row=2, column=1, padx=10, pady=10)
-        invalid_msg.config(text="Invalid Amount Entry",fg="red")
+        invalid_msg[0].config(text="Invalid Amount Entry",fg="red")
         entries[0].focus_set()
         return False
+    else:
+        invalid_msg[0].config(text="")
+    
+    if not ac_no.isdigit():
+        a = 0
+        invalid_msg[1].config(text="Invalid Account Number",fg="red")
+        entries[1].focus_set()
+        return False
+    else:
+        invalid_msg[1].config(text="")
     if a == 1:
         # entries.append(Sub_btn)
         entries[2].config(state='normal')
         entries[2].config(bg="light green")
         entries[2].bind("<Return>",Submit)
         entries[2].focus_set()
-        Submit(Toplevel=toplevel,codition=2, amount_entry=amount_var, ac_no_var=ac_no,)
+        res=Submit(Toplevel=toplevel,codition=2, amount_entry=amount_var, ac_no_var=ac_no,)
+        if res:
+            return True
+        else:
+            entries[2].config(state='disabled')
+            entries[2].config(bg='SystemButtonFace')
+            entries[1].focus_set()
+
+
             
     else:
         Sub_btn.config(state='disabled')
         Sub_btn.config(bg="SystemButtonFace")
 #valid checkup for withdraw amount
-def withdraw_valid(entries,toplevel=None,amount_var=None, ac_no_var=None,sign_var=None,AC_TYPE=None):
+def withdraw_valid(entries,toplevel=None,amount_var=None, ac_no_var=None,sign_var=None,AC_TYPE=None,Message=None):
     global a
     a=1
     amt=amount_var.get()
     ac_no=ac_no_var.get()
     sign=sign_var.get()
+    invalid_msg = Message
     if amt=="" or ac_no=="" or sign=="" :
         return False
 
     if not Validation.Amount(amt):
         a = 0
-        msg.showerror("Error", "Invalid amount.")
+        invalid_msg[0].config(text="Invalid amount entry")
         entries[0].focus_set()
         return False
+    else:
+        invalid_msg[0].config(text="")
     
     if not Validation.Sign(sign):
         a=0
-        msg.showerror("Error", "Invalid Signature.\tEnter valid formate Without space")
+        invalid_msg[1].config(text="Invalid sign entry")
         entries[1].focus_set()
         return False
+    else:
+        invalid_msg[1].config(text="")
+    if not ac_no.isdigit():
+        a = 0
+        invalid_msg[2].config(text=" Account Number should be a digit",fg="red")
+        entries[2].focus_set()
+        return False
+    else:
+        invalid_msg[2].config(text="")
+
+    if AC_TYPE == (-1):
+        msg.showerror('error','mismatch ac type')
+        return
     if a == 1:
         entries[3].config(state='normal')
         entries[3].config(bg="light green")
         entries[3].bind("<Return>",Submit)
         entries[3].bind("<Button-1>",Submit)
         entries[3].focus_set()
-        Submit(Toplevel=toplevel,codition=3, amount_entry=amount_var, ac_no_var=ac_no_var,sign_entry=sign_var,AC_type=AC_TYPE)
+        res=Submit(Toplevel=toplevel,codition=3, amount_entry=amount_var, ac_no_var=ac_no_var,sign_entry=sign_var,AC_type=AC_TYPE)
+        if res:
+            return True
+        else:
+            entries[3].config(state='disabled')
+            entries[3].config(bg="SystemButtonFace")
+            if res==2:              
+                entries[2].focus_set()
+            elif res==3:
+                entries[1].focus_set()
+            elif res== 4:
+                entries[0].focus_set()
             
     else:
         entries[4].config(state='disabled')
+    
 
-def remove_valid(entries,toplevel=None,mobile_no=None,adhar_no=None,ac_no_var=None,name_var=None,sign_var=None,Reason=None,AC_TYPE=None):
+def remove_valid(entries,toplevel=None,mobile_no=None,adhar_no=None,ac_no_var=None,name_var=None,
+                 sign_var=None,Reason=None,AC_TYPE=None,Message=None):
     global a
     a=1
     ac_no = ac_no_var.get()
@@ -470,44 +518,51 @@ def remove_valid(entries,toplevel=None,mobile_no=None,adhar_no=None,ac_no_var=No
     nm = name_var.get()
     sign = sign_var.get()
     reason=Reason.get()
+    invalid_msg = Message
 
     if ac_no=="" or mbl=="" or adr=="" or nm=="" or sign=='' or reason =='':
         return False
     
     if not Validation.Name(nm):
         a=0
-        msg.showerror("Error", "Invalid Name.")
+        invalid_msg[0].config(text="Invalid name entry",fg='red')
         entries[0].focus_set()
         return False
+    else:
+        invalid_msg[0].config(text="")
     
-    # # Validate Amount
-    # if not Validation.Amount(amt):
-    #     print("amount validation",amt)
-    #     a = 0
-    #     msg.showerror("Error", "Invalid amount.")
-    #     entries[1].focus_set()
-    #     return False
+
     
     if not Validation.Sign(sign):
         a=0
-        msg.showerror("Error", "Invalid Signature.")
+        invalid_msg[1].config(text="Invalid signature",fg='red')
         entries[2].focus_set()
         return False
+    else:
+        invalid_msg[1].config(text="")
     
         # Validate Mobile Number
     if not Validation.Mobile(mbl):
         print("mobile validation",mbl)
         a = 0
-        msg.showerror("Error", "Invalid mobile number.")
+        invalid_msg[2].config(text="Invalid mobile number",fg='red')
         entries[3].focus_set()
         return False
+    else:
+        invalid_msg[2].config(text="")
     
         # Validate Aadhar Number
     if not Validation.Adhar(adr):
         print("adhar validation",adr)
         a = 0
-        msg.showerror("Error", "Invalid Aadhar number.")
+        invalid_msg[3].config(text="Invalid adhar number",fg='red')
         entries[4].focus_set()
+        return False
+    else:
+        invalid_msg[3].config(text="")
+    
+    if AC_TYPE==str(-1):
+        msg.showerror('error','mis match acc type')
         return False
     
     if a == 1:
@@ -554,8 +609,7 @@ def Submit(event=None,Toplevel=None,codition=None,name_entry=None,amount_entry=N
                     close_toplevel(Toplevel)
 
                 elif details==1:
-                    close_toplevel(Toplevel)
-                    msg.showwarning("Limit Reached", "You have reached the maximum number of submissions.")
+                    return False
                 else:
                     close_toplevel(Toplevel)
                     msg.showinfo(title="Details",message=details)          
@@ -570,8 +624,8 @@ def Submit(event=None,Toplevel=None,codition=None,name_entry=None,amount_entry=N
                 if details == 0:
                     close_toplevel(Toplevel)
                
-                elif details == 1:
-                    return
+                elif details == 2 or details == 3 or details == 4:
+                    return details
                 else:
                     close_toplevel(Toplevel)
                     msg.showinfo(title="Details", message=details)
@@ -652,7 +706,7 @@ def create_account():
     Toplevel=mini
 
     tk.Label(mini,text='Fill the below Information for create A/C :',font=("Arial",15,'bold')).grid(row=0,column=0,padx=10,pady=10,columnspan=2)
-    # create lables and entry box
+ # create lables and entry box
     name = tk.Label(mini, text="Enter Name:", font=("Arial", 10))
     name.grid(row=1, column=0, padx=10, pady=10)
     name_var = tk.StringVar()
@@ -702,6 +756,7 @@ def create_account():
     adhar_invalid_msg = tk.Label(mini, text="", fg="red")
     adhar_invalid_msg.grid(row=10, column=1, padx=10, pady=0)
 
+
     type_of_ac=['Saving_A/C','Current_A/C','FD_A/C']
 
     # Create a StringVar to hold the value of the selected radiobutton
@@ -709,21 +764,22 @@ def create_account():
 
     for i in range(len(type_of_ac)):
         # Create a Radiobutton for each account type
-        tk.Radiobutton(mini, text=type_of_ac[i], variable=selected_ac, value=type_of_ac[i],font=("Arial",12,),command=P).grid(row=10, column=i)
+        tk.Radiobutton(mini, text=type_of_ac[i], variable=selected_ac, value=type_of_ac[i],font=("Arial",12,),command=P).grid(row=11, column=i)
 
 
     entries = [name_entry, amount_entry, sign_entry, mobile_entry, adhar_entry]
+    invalids=[name_invalid_msg, amount_invalid_msg, sign_invalid_msg, mobile_invalid_msg, adhar_invalid_msg]
 
 # Bind the Enter key event to move focus
     for entry in entries:
         entry.bind("<Return>", lambda event, entries=entries: focus_next_entry(event,entries, Toplevel,mobile_var,adhar_var,
-                                                                               amount_var,name_var,sign_var,check='create_ac',ac_type=selected_ac))
+                                                                               amount_var,name_var,sign_var,check='create_ac',ac_type=selected_ac,Msg=invalids))
         entry.bind("<Down>", lambda event, entries=entries: Arrow_keys(event,entries))
         entry.bind("<Up>", lambda event, entries=entries: Arrow_keys(event,entries))
 
     
     submit_btn=tk.Button(mini,text='SUBMIT',font=("Arial",10),command=Submit,state="disabled")
-    submit_btn.grid(row=11,column=0,padx=10,pady=10,columnspan=2)
+    submit_btn.grid(row=12,column=0,padx=10,pady=10,columnspan=2)
 
     
     # Bind key release events to validation function
@@ -741,13 +797,13 @@ def deposit_amount():
         all_valid=True
         ac_no=ac_no_entry.get()
         amount=amount_entry.get()
-        if ac_no.isdigit():
-            ac_no_entry.config(fg='black')
-            # ac_no_entry.config(bg='light green') 
-            # all_valid = True  
-        else:
-            ac_no_entry.config(fg='red')
-            all_valid = False
+        # if ac_no.isdigit():
+        #     ac_no_entry.config(fg='black')
+        #     # ac_no_entry.config(bg='light green') 
+        #     # all_valid = True  
+        # else:
+        #     ac_no_entry.config(fg='red')
+        #     all_valid = False
 
         if not (amount_entry.get() and ac_no_entry.get() ):
             submit_btn.config(state='disabled')
@@ -755,7 +811,7 @@ def deposit_amount():
             return False
 
     # Enable submit button if all fields are valid
-        if all_valid and len(ac_no)==3:
+        if all_valid:
             entries.append(submit_btn)
             print("lenth of entries in Dpst Validate input =",len(entries))
             submit_btn.bind("<Return>",Submit)
@@ -770,34 +826,36 @@ def deposit_amount():
 
     tk.Label(mini,text='Fill the below Information for Deposit :',font=("Arial",15,'bold')).grid(row=0,column=0,padx=10,pady=10,columnspan=2)
     #to create lables and entry box
+     #to create lables and entry box
     amount=tk.Label(mini,text="Enter Initial Amount :",font=("Arial",10))
     amount.grid(row=1,column=0,padx=10,pady=10)
     amount_var=tk.StringVar()
     amount_entry=tk.Entry(mini,width=30,textvariable=amount_var)
     amount_entry.grid(row=1,column=1,padx=10,pady=10)
     amount_entry.bind("<KeyRelease>", lambda event: validate_inputs())
-    invalid_msg = tk.Label(mini, text="", fg="red")
-    invalid_msg.grid(row=2, column=1, padx=10, pady=0)
+    amount_invalid_msg = tk.Label(mini, text="", fg="red")
+    amount_invalid_msg.grid(row=2, column=1, padx=10, pady=0)
 
     ac_no=tk.Label(mini,text='Enter Acount Number :',font=("Arial",10))
-    ac_no.grid(row=2,column=0,padx=10,pady=10)
+    ac_no.grid(row=3,column=0,padx=10,pady=10)
     ac_no_var=tk.StringVar()
     ac_no_entry=tk.Entry(mini,width=30,textvariable=ac_no_var)
-    ac_no_entry.grid(row=2,column=1,padx=10,pady=10)
+    ac_no_entry.grid(row=3,column=1,padx=10,pady=10)
     ac_no_entry.bind("<KeyRelease>", lambda event: validate_inputs())
-    Invalid_msg = tk.Label(mini, text="", fg="red")
-    Invalid_msg.grid(row=2, column=1, padx=10, pady=0)
+    ac_no_invalid_msg = tk.Label(mini, text="", fg="red")
+    ac_no_invalid_msg.grid(row=4, column=1, padx=10, pady=0)
     
 
     submit_btn=tk.Button(mini,text='SUBMIT',font=("Arial",10),command=Submit,state="disabled")
-    submit_btn.grid(row=3,column=0,padx=10,pady=10,columnspan=2)
+    submit_btn.grid(row=5,column=0,padx=10,pady=10,columnspan=2)
 
     entries = [amount_entry,ac_no_entry ]
+    invalids=[ amount_invalid_msg,ac_no_invalid_msg ]
 
 # Bind the Enter key event to move focus
     for entry in entries:
         entry.bind("<Return>", lambda event, entries=entries: focus_next_entry(event, entries, Toplevel, amount_var=amount_var,
-                                                                               ac_no_var=ac_no_var,check='deposit'))
+                                                                               ac_no_var=ac_no_var,check='deposit',Msg=invalids))
         entry.bind("<Down>", lambda event, entries=entries: Arrow_keys(event,entries))
         entry.bind("<Up>", lambda event, entries=entries: Arrow_keys(event,entries))
 
@@ -850,20 +908,27 @@ def withdraw_amount():
     amount_entry = tk.Entry(mini, width=30,textvariable=amount_var)
     amount_entry.grid(row=1, column=1, padx=10, pady=10)
     amount_entry.bind("<KeyRelease>", lambda event: validate_inputs())
+    amount_invalid_msg = tk.Label(mini, text="", fg="red")
+    amount_invalid_msg.grid(row=2, column=1, padx=10, pady=0)
 
-    tk.Label(mini, text='Enter Signature:', font=("Arial", 10)).grid(row=2, column=0, padx=10, pady=10)
+    tk.Label(mini, text='Enter Signature:', font=("Arial", 10)).grid(row=3, column=0, padx=10, pady=10)
     sign_var=tk.StringVar()
     sign_entry = tk.Entry(mini, width=30,textvariable=sign_var)
-    sign_entry.grid(row=2, column=1, padx=10, pady=10)
+    sign_entry.grid(row=3, column=1, padx=10, pady=10)
     sign_entry.bind("<KeyRelease>", lambda event: validate_inputs())
+    sign_invalid_msg = tk.Label(mini, text="", fg="red")
+    sign_invalid_msg.grid(row=4, column=1, padx=10, pady=0)
 
-    tk.Label(mini, text='Enter Account Number:', font=("Arial", 10)).grid(row=3, column=0, padx=10, pady=10)
+    tk.Label(mini, text='Enter Account Number:', font=("Arial", 10)).grid(row=5, column=0, padx=10, pady=10)
     ac_no_var=tk.StringVar()
     ac_no_entry = tk.Entry(mini, width=30,textvariable=ac_no_var)
-    ac_no_entry.grid(row=3, column=1, padx=10, pady=10)
+    ac_no_entry.grid(row=5, column=1, padx=10, pady=10)
     ac_no_entry.bind("<KeyRelease>", lambda event: validate_inputs())
+    ac_no_invalid_msg = tk.Label(mini, text="", fg="red")
+    ac_no_invalid_msg.grid(row=6, column=1, padx=10, pady=0)
 
     entries = [ amount_entry, sign_entry, ac_no_entry ]
+    invalids=[ amount_invalid_msg,sign_invalid_msg,ac_no_invalid_msg ]
 
     
     type_of_ac=['Saving_A/C','Current_A/C','FD_A/C']
@@ -874,18 +939,19 @@ def withdraw_amount():
     for i in range(len(type_of_ac)):
         # Create a Radiobutton for each account type
         tk.Radiobutton(mini, text=type_of_ac[i], variable=selected_ac, value=type_of_ac[i]
-                       ,font=("Arial",12,)).grid(row=4, column=i)
+                       ,font=("Arial",12,)).grid(row=7, column=i)
 
 
 # Bind the Enter key event to move focus
     for entry in entries:
         entry.bind("<Return>", lambda event, entries=entries: focus_next_entry(event, entries,Toplevel,amount_var=amount_var,
-                                                                               ac_no_var=ac_no_var,sign_var=sign_var,check='credit',ac_type=selected_ac))
+                                                                               ac_no_var=ac_no_var,sign_var=sign_var,check='credit',
+                                                                               ac_type=selected_ac,Msg=invalids))
         entry.bind("<Down>", lambda event, entries=entries: Arrow_keys(event,entries))
         entry.bind("<Up>", lambda event, entries=entries: Arrow_keys(event,entries))
 
     submit_btn = tk.Button(mini, text='SUBMIT', font=("Arial", 10), command=Submit, state='disabled')
-    submit_btn.grid(row=5, column=0, padx=10, pady=10, columnspan=2)
+    submit_btn.grid(row=8, column=0, padx=10, pady=10, columnspan=2)
 
     # Bind key release events to validation function
     for entry in entries:
@@ -893,6 +959,7 @@ def withdraw_amount():
 
     mini.grab_set()  # to freeze the buttons in the main window until the toplevel window is closed
     mini.mainloop()
+
 #function for check button in main window
 def check_account():
 
@@ -949,6 +1016,7 @@ def check_account():
     M=tk.Toplevel()
     mini=M
     tk.Label(mini,text='Fill the below Information for Check A/C details :',font=("Arial",15,'bold')).grid(row=0,column=0,padx=10,pady=10,columnspan=2)
+    
     #to create lables and entry box
     ac_no=tk.Label(mini,text='Enter Acount Number :',font=("Arial",10))
     ac_no.grid(row=1,column=0,padx=10,pady=10)
@@ -962,9 +1030,6 @@ def check_account():
 
     invalid_msg = tk.Label(mini, text="", fg="red")
     invalid_msg.grid(row=2,column=0,padx=10,pady=10,columnspan=2)
-
-     
-
     entries = [ ac_no_entry]
 
 # Bind the Enter key event to move focus
@@ -1037,52 +1102,77 @@ def remove_ac():
     name_var=tk.StringVar()
     name_entry=tk.Entry(mini,textvariable=name_var,width=30)
     name_entry.grid(row=1,column=1,padx=10,pady=10)
+    name_invalid_msg=tk.Label(mini)
+    name_invalid_msg.grid(row=2,column=1)
     #name_entry.bind("<KeyRelease>", lambda event: validate_inputs())
 
     ac_no=tk.Label(mini, text="Enter Account Number",font=("Arial",10))
-    ac_no.grid(row=2,column=0,padx=10,pady=10)
+    ac_no.grid(row=3,column=0,padx=10,pady=10)
     ac_no_var=tk.StringVar()
     ac_no_Entry=tk.Entry(mini,width=30,textvariable=ac_no_var)
-    ac_no_Entry.grid(row=2,column=1,padx=10,pady=10)
+    ac_no_Entry.grid(row=3,column=1,padx=10,pady=10)
     ac_no_Entry.bind("<KeyRelease>", lambda event: validate_inputs())
+    ac_no_invalid_msg=tk.Label(mini)
+    ac_no_invalid_msg.grid(row=4,column=1)
     
     sign=tk.Label(mini,text='Enter Signature :',font=("Arial",10))
-    sign.grid(row=3,column=0,padx=10,pady=10)
+    sign.grid(row=5,column=0,padx=10,pady=10)
     sign_var=tk.StringVar()
     sign_entry=tk.Entry(mini,textvariable=sign_var,width=30)
-    sign_entry.grid(row=3,column=1,padx=10,pady=10)
+    sign_entry.grid(row=5,column=1,padx=10,pady=10)
     sign_entry.bind("<KeyRelease>", lambda event: validate_inputs())
+    sign_invalid_msg=tk.Label(mini)
+    sign_invalid_msg.grid(row=6,column=1)
 
     mobile=tk.Label(mini,text='Enter Mobile Number :',font=("Arial",10))
-    mobile.grid(row=4,column=0,padx=10,pady=10)
+    mobile.grid(row=7,column=0,padx=10,pady=10)
     mobile_var = tk.StringVar()
     mobile_entry=tk.Entry(mini,width=30,textvariable=mobile_var)
-    mobile_entry.grid(row=4,column=1,padx=10,pady=10)
+    mobile_entry.grid(row=7,column=1,padx=10,pady=10)
     mobile_entry.bind("<KeyRelease>", lambda event: validate_inputs())
+    mobile_invalid_msg=tk.Label(mini)
+    mobile_invalid_msg.grid(row=8,column=1)
 
     adhar=tk.Label(mini,text='Enter Adhar_Card Number :',font=("Arial",10))
-    adhar.grid(row=5,column=0,padx=10,pady=10)
+    adhar.grid(row=9,column=0,padx=10,pady=10)
     adhar_var=tk.StringVar()
     adhar_entry=tk.Entry(mini,width=30,textvariable=adhar_var)
-    adhar_entry.grid(row=5,column=1,padx=10,pady=10)
+    adhar_entry.grid(row=9,column=1,padx=10,pady=10)
     adhar_entry.bind("<KeyRelease>", lambda event: validate_inputs())
+    adhar_invalid_msg=tk.Label(mini)
+    adhar_invalid_msg.grid(row=10,column=1)
+
 
     reason_label = tk.Label(mini, text="Enter Reason To close :", font=("Arial", 10))
-    reason_label.grid(row=6, column=0, padx=10, pady=10)
+    reason_label.grid(row=11, column=0, padx=10, pady=10)
     reason_var = tk.StringVar()
     reason_entry = tk.Entry(mini, textvariable=reason_var, width=30)
-    reason_entry.grid(row=6, column=1, padx=10, pady=10)
+    reason_entry.grid(row=11, column=1, padx=10, pady=10)
     reason_entry.bind("<KeyRelease>", lambda event: validate_inputs())
+    reason_invalid_msg = tk.Label(mini)
+    reason_invalid_msg.grid(row=12, column=1)
+
+    type_of_ac=['Saving_A/C','Current_A/C','FD_A/C']
+
+    # Create a StringVar to hold the value of the selected radiobutton
+    selected_ac = tk.StringVar()
+
+    for i in range(len(type_of_ac)):
+        # Create a Radiobutton for each account type
+        tk.Radiobutton(mini, text=type_of_ac[i], variable=selected_ac, value=type_of_ac[i]
+                       ,font=("Arial",12,)).grid(row=13, column=i)
+
 
     submit_btn=tk.Button(mini,text='SUBMIT',font=("Arial",10),command=Submit,state="disabled")
-    submit_btn.grid(row=7,column=0,padx=10,pady=10,columnspan=2)
+    submit_btn.grid(row=14,column=0,padx=10,pady=10,columnspan=2)
 
     entries = [name_entry, ac_no_Entry, sign_entry, mobile_entry, adhar_entry,reason_entry]
-
+    invalid=[name_invalid_msg,ac_no_invalid_msg,sign_invalid_msg,mobile_invalid_msg,adhar_invalid_msg]
 # Bind the Enter key event to move focus
     for entry in entries:
         entry.bind("<Return>", lambda event, entries=entries: focus_next_entry(event,entries, Toplevel=Toplevel,mobile_var=mobile_var,adhar_var=adhar_var,
-                                                                               ac_no_var=ac_no_var,name_var=name_var,sign_var=sign_var,check='remove_ac',Reason_var=reason_var))
+                                                                               ac_no_var=ac_no_var,name_var=name_var,sign_var=sign_var,
+                                                                               check='remove_ac',Reason_var=reason_var,ac_type=selected_ac,Msg=invalid ))
     
         entry.bind("<Down>", lambda event, entries=entries: Arrow_keys(event,entries))
         entry.bind("<Up>", lambda event, entries=entries: Arrow_keys(event,entries))
@@ -1277,20 +1367,6 @@ def Acounts():
 
     mini.resizable(True,True)
     mini.mainloop()
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
 # for creat Bank Operation  main window
 window = tk.Tk()
