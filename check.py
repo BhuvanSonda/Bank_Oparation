@@ -11,7 +11,7 @@ import csv
 from tkinter import filedialog
 
 #assign a file
-Acounts_file='data.csv'
+Acounts_file='data_varify.csv'
 
 AC_close_file='Closed_Acounts.csv'
 ac_closed = pd.read_csv(Acounts_file) if pd.io.common.file_exists(AC_close_file) else pd.DataFrame(columns=["Names", "A/C No:", "Sign:","Mobile_No:",'Adhar_No:',"Time:","Reason"])
@@ -1233,7 +1233,7 @@ def remove_ac():
 
 def edit_ac():
     
-    def validation():
+    def validation(event=None):
         read = Read_csv()
         ac = ac_no_var.get()
         
@@ -1241,7 +1241,11 @@ def edit_ac():
             msg.showerror("Error", "Please Enter Account Number")
             return False
         
-        elif int(ac) in read["A/C No:"].values:
+        if int(ac) not in read["A/C No:"].values:
+            msg.showerror("Error", "Account Number does not exist")
+            return False
+            
+        else:
             mini.destroy()
             index = read.index[read["A/C No:"] == int(ac)].tolist()[0]  # Find the index of the account number
             
@@ -1251,85 +1255,100 @@ def edit_ac():
             
             # Old Signature
             sign = tk.Label(tp, text="Enter Old Signature", font=("Arial", 10))
-            sign.pack()
+            sign.grid(row=0,column=0)
             sign_Entry = tk.Entry(tp, width=30)
-            sign_Entry.pack()
-
+            sign_Entry.grid(row=0,column=1)
+            sign_invalid_msg=tk.Label(tp)
+            sign_invalid_msg.grid(row=2,column=1)
             # New Name
             name = tk.Label(tp, text="Enter New Name (optional)", font=("Arial", 10))
-            name.pack()
+            name.grid(row=3,column=0)
             name_Entry = tk.Entry(tp, width=30)
-            name_Entry.pack()
+            name_Entry.grid(row=3,column=1)
+            name_invalid=tk.Label(tp)
+            name_invalid.grid(row=4,column=1)
 
             # New Signature
             new_sign = tk.Label(tp, text="Enter New Signature (optional)", font=("Arial", 10))
-            new_sign.pack()
+            new_sign.grid(row=5,column=0)
             new_sign_Entry = tk.Entry(tp, width=30)
-            new_sign_Entry.pack()
+            new_sign_Entry.grid(row=5,column=1)
+            new_sign_invalid=tk.Label(tp)
+            new_sign_invalid.grid(row=6,column=1)
 
             # New Mobile Number
             mobile = tk.Label(tp, text="Enter New Mobile Number (optional)", font=("Arial", 10))
-            mobile.pack()
+            mobile.grid(row=7,column=0)
             mobile_Entry = tk.Entry(tp, width=30)
-            mobile_Entry.pack()
+            mobile_Entry.grid(row=7,column=1)
+            mobile_invalid=tk.Label(tp)
+            mobile_invalid.grid(row=8,column=1)
+
 
             # New Adhar Number
-            adhar = tk.Label(tp, text="Enter New Adhar Number (optional)", font=("Arial", 10))
-            adhar.pack()
-            adhar_Entry = tk.Entry(tp, width=30)
-            adhar_Entry.pack()
+            # adhar = tk.Label(tp, text="Enter New Adhar Number (optional)", font=("Arial", 10))
+            # adhar.grid(row=9,column=0)
+            # adhar_Entry = tk.Entry(tp, width=30)
+            # adhar_Entry.grid(row=9,column=1)
+            # adhar_invalid=tk.Label(tp)
+            # adhar_invalid.grid(row=10,column=1)
+
+            invalids_msg=[sign_invalid_msg,name_invalid,new_sign_invalid,mobile_invalid]
 
             submit_btn = tk.Button(tp, text="Submit", font=("Arial", 10), 
                                    command=lambda: New_Update(ac_no=int(ac), old_sign=sign_Entry.get(),
                                                               name=name_Entry.get(), new_sign=new_sign_Entry.get(),
-                                                              mobile_no=mobile_Entry.get(), adhar_no=adhar_Entry.get()))
-            submit_btn.pack(pady=10)
+                                                              mobile_no=mobile_Entry.get(),invalids=invalids_msg))
+            submit_btn.grid(row=11,column=0)
 
             submit_btn.bind("<Return>", lambda event: New_Update(event=event, ac_no=int(ac), old_sign=sign_Entry.get(),
                                                                  name=name_Entry.get(), new_sign=new_sign_Entry.get(),
-                                                                 mobile_no=mobile_Entry.get(), adhar_no=adhar_Entry.get()))
+                                                                 mobile_no=mobile_Entry.get(),invalids=invalids_msg))
             tp.mainloop()
 
-    def New_Update(event=None, ac_no=None, old_sign=None, new_sign=None, name=None, mobile_no=None, adhar_no=None):
+    def New_Update(event=None, ac_no=None, old_sign=None, new_sign=None, name=None, mobile_no=None, adhar_no=None,invalids=None):
         read = Read_csv()
         
         print("Old Sign =", old_sign, "\tName =", name, "\tNew Sign =", new_sign, "\tMobile =", mobile_no, "\tAdhar =", adhar_no)  # Debugging prints
+        
+        # if not ac_no.isdigit():
+        #     invalids[0].config(text="Invalid Account Number", fg="red")
+        #     return
+        # else:
+        #     invalids[0].config(text="", fg="black")
         index = read.index[read["A/C No:"] == ac_no].tolist()[0]
+
         
         if read.at[index, "Sign:"] == old_sign:
             updated = False  # Track if any update is made
             
             if name:
-                if Validation.Name(name):             
+                if Validation.Name(name):
+                    invalids[1].config(text="")             
                     read.at[index, "Names"] = name
                     msg.showinfo("Information", f"Name Updated to {name}")
                     updated = True
                 else:
-                    msg.showerror("Error", "Invalid Name")
+                    invalids[1].config(text="Invalid Name", fg="red")
                 
             if new_sign:
                 if Validation.Sign(new_sign):
+                    invalids[2].config(text="")
                     read.at[index, "Sign:"] = new_sign
                     msg.showinfo("Information", f"Signature Updated to {new_sign}")
                     updated = True
                 else:
-                    msg.showerror("Error", "Invalid Signature")
+                    invalids[2].config(text="Invalid Signature", fg="red")
                 
             if mobile_no:
                 if Validation.Mobile(mobile_no):
+                    invalids[3].config(text="")
                     read.at[index, "Mobile_No:"] = mobile_no
                     msg.showinfo("Information", f"Mobile Number Updated to {mobile_no}")
                     updated = True
                 else:
-                    msg.showerror("Error", "Invalid Mobile Number")
+                    invalids[3].config(text="Invalid Mobile Number", fg="red")
                 
-            if adhar_no: 
-                if Validation.Aadhar(adhar_no):
-                    read.at[index, "Adhar_No:"] = adhar_no
-                    msg.showinfo("Information", f"Adhar Number Updated to {adhar_no}")
-                    updated = True
-                else:
-                    msg.showerror("Error", "Invalid Adhar Number")
             
             if updated:
                 read.to_csv(Acounts_file, index=False)
@@ -1348,9 +1367,12 @@ def edit_ac():
     ac_no_var = tk.IntVar()
     ac_no_Entry = tk.Entry(mini, width=30, textvariable=ac_no_var)
     ac_no_Entry.pack()
+    ac_no_Entry.bind("<Return>",lambda event : validation())
+
 
     submit_btn = tk.Button(mini, text="Proceed", command=validation)
     submit_btn.pack(pady=10)
+    submit_btn.bind("<Return>",lambda event : validation())
 
     mini.grab_set()
     mini.resizable(True,True)
@@ -1358,8 +1380,10 @@ def edit_ac():
 
 
 def Acounts():
+    Secret_key="1542"
     def load_csv():
-        load_button.config(state="disabled")
+        load_button.destroy()
+        
     
     # Open the CSV file and read its content
         with open(Acounts_file) as file:
@@ -1380,35 +1404,42 @@ def Acounts():
                 tree.insert("", "end", values=row)
 
     def valid():
-        Secret_key="1542"
+        #Secret_key="1542"
         enter_key=(sign_Entry.get())
         if (enter_key)==Secret_key:
-            load_button.config(state='active',bg='green')
+            sign_Entry.destroy ()
+            sign.destroy()
+            chk.destroy()
+            load_button.config(state='active',bg='light green')
         else:
             sign_Entry.focus_set()
-            load_button.config(state='active',bg='SystemButtonFace')
+            load_button.config(state='disabled',bg='SystemButtonFace')
         # Create the main Tkinter window
     mini = tk.Tk()
     mini.title("Acounts detaills")
 
     # Create a frame for the Treeview
-    frame = tk.Frame(mini)
-    frame.pack(pady=20)
+    frame = tk.Frame(mini,)
+    frame.grid(row=0,column=0,sticky="nsew")
 
     # Create and configure the Treeview
     tree = ttk.Treeview(frame)
     tree.pack(padx=20, pady=20, fill="both", expand=True)
 
-    tk.Label(mini,text='enter sign:',font=('Arial',15,'bold')).pack()
+    sign=tk.Label(mini,text='enter secret key:',font=('Arial',15,'bold'))
+    sign.grid(row=1,column=0,padx=20,pady=20)
     sign_var = tk.StringVar()
     sign_Entry = tk.Entry(mini, width=30, textvariable=sign_var)
-    sign_Entry.pack()
+    sign_Entry.grid(row=1,column=1)
     sign_Entry.focus_set()
-    sign_Entry.bind("<KeyRelease>",lambda event : valid())
+    sign_Entry.bind("<Return>",lambda event : valid())
+    chk=tk.Button(mini,text='check',font=('Arial',13,'bold'),command=valid)
+    chk.grid(row=1,column=2)
 
     # Create a button to load the specific CSV file
     load_button = tk.Button(mini, text="Click To Open File", command=load_csv,state='disabled',font=('Arial',13,'bold'))
-    load_button.pack()
+    load_button.grid(row=2,column=0,padx=10,pady=10,columnspan=2)
+
 
     mini.resizable(True,True)
     mini.mainloop()
