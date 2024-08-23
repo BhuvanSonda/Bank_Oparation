@@ -16,7 +16,6 @@ Acounts_file='data_varify.csv'
 AC_close_file='Closed_Acounts.csv'
 ac_closed = pd.read_csv(Acounts_file) if pd.io.common.file_exists(AC_close_file) else pd.DataFrame(columns=["Names", "A/C No:", "Sign:","Mobile_No:",'Adhar_No:',"Time:","Reason"])
    
-#pdb.run()
 #function to read the file
 def Read_csv():
     read = pd.read_csv(Acounts_file) if pd.io.common.file_exists(Acounts_file) else pd.DataFrame(columns=["Names", "A/C No:", "Balance :", "Sign:","Mobile_No:",'Adhar_No:',"Time:"])
@@ -43,6 +42,7 @@ class Update:
         else:
             df.to_csv(Acounts_file, mode="w", index=False)
 
+# assign the details of deleted acount to the closed ac file data
 def colsed(name, account_no, sign,mobile_no,adhar_no,time,reason):
     entry = {
         "Names": [name],
@@ -170,9 +170,6 @@ class BankOperations:
                 else:
                     ac=0
                 return ac
-
-                
-
         else:
             if msg.askretrycancel("Error", f"Account No: {ac_no} does not Exists!"):#if entered acount number is not existed then pop w.
                 ac=2
@@ -210,14 +207,7 @@ class BankOperations:
                     print(type(read.at[index, "Mobile_No:"]))
                     if read.at[index, "Mobile_No:"] == mobile_no:
                         print("Mobile")
-                        if read.at[index, "Adhar_No:"] == adhar_no:
-                        
-                            # read.drop(index, inplace=True)  # Remove the row from the dataframe
-                            # read.to_csv(Acounts_file, index=False)  # Save the changes to the csv file
-                            # t=dt.datetime.now()
-                            # time=(t.strftime("%d-%m-%Y   %H:%M:%S "))
-                            # Update.AC_colsed(name,ac_no,sign,mobile_no=mobile_no,adhar_no=adhar_no,time=time,reason=reason)
-                            # msg.showinfo("Information", "Account removed successfully")
+                        if read.at[index, "Adhar_No:"] == adhar_no:                     
                             return True
                         else:
                             if msg.askretrycancel("Error", "Adhar number does not match"):
@@ -683,7 +673,6 @@ def Submit(event=None,Toplevel=None,codition=None,name_entry=None,amount_entry=N
                     elif fun_response==2:
                         return 1
 
-
 #function for create acount button 
 def create_account():
 
@@ -829,13 +818,7 @@ def deposit_amount():
         all_valid=True
         ac_no=ac_no_entry.get()
         amount=amount_entry.get()
-        # if ac_no.isdigit():
-        #     ac_no_entry.config(fg='black')
-        #     # ac_no_entry.config(bg='light green') 
-        #     # all_valid = True  
-        # else:
-        #     ac_no_entry.config(fg='red')
-        #     all_valid = False
+     
 
         if not (amount_entry.get() and ac_no_entry.get() ):
             submit_btn.config(state='disabled')
@@ -960,8 +943,7 @@ def withdraw_amount():
     ac_no_invalid_msg.grid(row=6, column=1, padx=10, pady=0)
 
     entries = [ amount_entry, sign_entry, ac_no_entry ]
-    
-    
+      
     type_of_ac=['Saving_A/C','Current_A/C','FD_A/C']
 
     # Create a StringVar to hold the value of the selected radiobutton
@@ -975,7 +957,6 @@ def withdraw_amount():
     radio_invalid_msg.grid(row=8, column=1, padx=10, pady=0)
 
     invalids=[ amount_invalid_msg,sign_invalid_msg,ac_no_invalid_msg,radio_invalid_msg]
-
 
 # Bind the Enter key event to move focus
     for entry in entries:
@@ -1284,15 +1265,6 @@ def edit_ac():
             mobile_invalid=tk.Label(tp)
             mobile_invalid.grid(row=8,column=1)
 
-
-            # New Adhar Number
-            # adhar = tk.Label(tp, text="Enter New Adhar Number (optional)", font=("Arial", 10))
-            # adhar.grid(row=9,column=0)
-            # adhar_Entry = tk.Entry(tp, width=30)
-            # adhar_Entry.grid(row=9,column=1)
-            # adhar_invalid=tk.Label(tp)
-            # adhar_invalid.grid(row=10,column=1)
-
             invalids_msg=[sign_invalid_msg,name_invalid,new_sign_invalid,mobile_invalid]
 
             submit_btn = tk.Button(tp, text="Submit", font=("Arial", 10), 
@@ -1311,11 +1283,6 @@ def edit_ac():
         
         print("Old Sign =", old_sign, "\tName =", name, "\tNew Sign =", new_sign, "\tMobile =", mobile_no, "\tAdhar =", adhar_no)  # Debugging prints
         
-        # if not ac_no.isdigit():
-        #     invalids[0].config(text="Invalid Account Number", fg="red")
-        #     return
-        # else:
-        #     invalids[0].config(text="", fg="black")
         index = read.index[read["A/C No:"] == ac_no].tolist()[0]
 
         
@@ -1369,7 +1336,6 @@ def edit_ac():
     ac_no_Entry.pack()
     ac_no_Entry.bind("<Return>",lambda event : validation())
 
-
     submit_btn = tk.Button(mini, text="Proceed", command=validation)
     submit_btn.pack(pady=10)
     submit_btn.bind("<Return>",lambda event : validation())
@@ -1378,31 +1344,32 @@ def edit_ac():
     mini.resizable(True,True)
     mini.mainloop()
 
-
 def Acounts():
     Secret_key="1542"
     def load_csv():
         load_button.destroy()
         
-    
     # Open the CSV file and read its content
         with open(Acounts_file) as file:
             read = csv.reader(file)
             headers = next(read)
-
+           
         # Define the columns in the treeview
             tree["columns"] = headers
             tree["show"] = "headings"  # Hide the default empty first column
-
-        # Create the headers in the treeview
+            max_col_widths = {header: len(header) for header in headers}
             for headdings in headers:
-                tree.heading(headdings, text=headdings)
-                tree.column(headdings, anchor="center")
+                tree.heading(headdings, text=headdings,anchor='nw',)
                 
-        # Insert the CSV data into the treeview
+        # Create the headers in the treeview
             for row in read:
+                for idx, value in enumerate(row):
+                    col_width = max(max_col_widths[headers[idx]], len(value))
+                    max_col_widths[headers[idx]] = col_width
                 tree.insert("", "end", values=row)
 
+            tree['height']=20
+    
     def valid():
         #Secret_key="1542"
         enter_key=(sign_Entry.get())
@@ -1419,12 +1386,16 @@ def Acounts():
     mini.title("Acounts detaills")
 
     # Create a frame for the Treeview
-    frame = tk.Frame(mini,)
+    frame = tk.Frame(mini,height=300,width=300)
     frame.grid(row=0,column=0,sticky="nsew")
 
+    style = ttk.Style()
+    style.configure("Treeview.Heading", font=('Arial', 15, 'bold'))  # Set font size and style
     # Create and configure the Treeview
     tree = ttk.Treeview(frame)
     tree.pack(padx=20, pady=20, fill="both", expand=True)
+
+
 
     sign=tk.Label(mini,text='enter secret key:',font=('Arial',15,'bold'))
     sign.grid(row=1,column=0,padx=20,pady=20)
