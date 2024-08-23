@@ -11,7 +11,7 @@ import csv
 from tkinter import filedialog
 
 #assign a file
-Acounts_file='data_varify.csv'
+Acounts_file='data.csv'
 
 AC_close_file='Closed_Acounts.csv'
 ac_closed = pd.read_csv(Acounts_file) if pd.io.common.file_exists(AC_close_file) else pd.DataFrame(columns=["Names", "A/C No:", "Sign:","Mobile_No:",'Adhar_No:',"Time:","Reason"])
@@ -245,6 +245,85 @@ def Arrow_keys(event, entries):
     # Focus on the next or previous entry
     entries[next_index].focus_set()
 
+        
+#valid checkup for withdraw amount
+def withdraw_valid(entries, toplevel=None, amount_var=None, ac_no_var=None, sign_var=None, AC_TYPE=None, Message=None):
+    global a  # Use global variable 'a' to track validation status
+    a = 1  # Initialize 'a' to 1, indicating that validation has passed so far
+
+    # Get the input values from Tkinter variables
+    amt = amount_var.get()  
+    ac_no = ac_no_var.get()     
+    sign = sign_var.get()   
+    invalid_msg = Message  # Reference to the list of message labels for displaying validation errors
+
+    # Check if any of the required fields are empty
+    if amt == "" or ac_no == "" or sign == "":
+        return False  # Exit function early if any field is empty
+
+    # Validate the entered amount
+    if not Validation.Amount(amt):
+        a = 0  # Set validation flag to 0 indicating failure
+        invalid_msg[0].config(text="Invalid amount entry")  # Show error message for invalid amount
+        entries[0].focus_set()  # Set focus back to the amount entry field for correction
+        return False    
+    else:
+        invalid_msg[0].config(text="")  # Clear error message if the amount is valid
+
+    # Validate the sign entry
+    if not Validation.Sign(sign):
+        a = 0  # Set validation flag to 0 indicating failure
+        invalid_msg[1].config(text="Invalid sign entry")  # Show error message for invalid sign
+        entries[1].focus_set()  # Set focus back to the sign entry field for correction
+        return False    
+    else:
+        invalid_msg[1].config(text="")  # Clear error message if the sign is valid
+
+    # Validate that the account number is numeric
+    if not ac_no.isdigit():
+        a = 0   
+        invalid_msg[2].config(text="Account Number should be a digit", fg="red")  # Show error message for invalid account number
+        entries[2].focus_set()  # Set focus back to the account number entry field for correction
+        return False    
+    else:
+        invalid_msg[2].config(text="")  # Clear error message if the account number is valid
+
+    # Check that the account type is one of the valid types
+    List = ['Saving_A/C', 'Current_A/C', 'FD_A/C']  # List of valid account types
+    if AC_TYPE.get() in List:
+        invalid_msg[3].config(text="   ", fg="red")     
+    else:
+        print(AC_TYPE.get())  # Debug print to check the selected account type
+        invalid_msg[3].config(text="A/C type is required !!", fg="red")  # Show error message for invalid or missing account type
+        entries[2].focus_set()      
+        return      
+
+    # If all validations pass, proceed with enabling the next entry field and submitting the form
+    if a == 1:
+        entries[3].config(state='normal',bg="light green")      
+        entries[3].bind("<Return>", Submit)  # Bind the Enter key to the Submit function
+        entries[3].bind("<Button-1>", Submit)  # Bind mouse click to the Submit function
+        entries[3].focus_set()  
+
+        # Call the Submit function with parameters and get the result
+        res = Submit(Toplevel=toplevel, codition=3, amount_entry=amount_var, ac_no_var=ac_no_var, sign_entry=sign_var, AC_type=AC_TYPE)
+
+        if res:
+            return True  # Return True if submission was successful
+        else:
+            entries[3].config(state='disabled',bg="SystemButtonFace")    # Disable the next entry field if submission failed
+            # Handle specific cases of submission failure by setting focus back to the corresponding entry field
+            if res == 2:
+                entries[2].focus_set()  # Focus back to account number entry if it was incorrect
+            elif res == 3:
+                entries[1].focus_set()  # Focus back to sign entry if it was incorrect
+            elif res == 4:
+                entries[0].focus_set()  # Focus back to amount entry if it was incorrect
+
+    else:
+        entries[4].config(state='disabled')  # Disable any further entry field if overall validation failed
+
+
 #function to Handle Enter key
 def focus_next_entry(event=None,entries=None,Toplevel=None,mobile_var=None,adhar_var=None,
                      amount_var=None,name_var=None,sign_var=None,ac_no_var=None,check=None,Reason_var=None,ac_type=None,Msg=None):
@@ -275,8 +354,9 @@ def focus_next_entry(event=None,entries=None,Toplevel=None,mobile_var=None,adhar
 
         if amt=="" or ac_no=="" or sign=="" :#if once all required input feilds are filles then only it enters next step
             return False
+        
         else:
-            withdraw_valid(entries,Toplevel,amount_var,ac_no_var,sign_var,ac_type,Msg)
+            with_draw_fun_res =withdraw_valid(entries,Toplevel,amount_var,ac_no_var,sign_var,ac_type,Msg)
 
     elif check=='deposit':#conditions to check we are in which type of operations 
         amt = amount_var.get()
@@ -419,84 +499,6 @@ def deposit_valid(entries,toplevel=None, amount_var=None, ac_no_var=None,Sub_btn
     else:
         Sub_btn.config(state='disabled')
         Sub_btn.config(bg="SystemButtonFace")
-#valid checkup for withdraw amount
-def withdraw_valid(entries, toplevel=None, amount_var=None, ac_no_var=None, sign_var=None, AC_TYPE=None, Message=None):
-    global a  # Use global variable 'a' to track validation status
-    a = 1  # Initialize 'a' to 1, indicating that validation has passed so far
-
-    # Get the input values from Tkinter variables
-    amt = amount_var.get()  
-    ac_no = ac_no_var.get()     
-    sign = sign_var.get()   
-    invalid_msg = Message  # Reference to the list of message labels for displaying validation errors
-
-    # Check if any of the required fields are empty
-    if amt == "" or ac_no == "" or sign == "":
-        return False  # Exit function early if any field is empty
-
-    # Validate the entered amount
-    if not Validation.Amount(amt):
-        a = 0  # Set validation flag to 0 indicating failure
-        invalid_msg[0].config(text="Invalid amount entry")  # Show error message for invalid amount
-        entries[0].focus_set()  # Set focus back to the amount entry field for correction
-        return False    
-    else:
-        invalid_msg[0].config(text="")  # Clear error message if the amount is valid
-
-    # Validate the sign entry
-    if not Validation.Sign(sign):
-        a = 0  # Set validation flag to 0 indicating failure
-        invalid_msg[1].config(text="Invalid sign entry")  # Show error message for invalid sign
-        entries[1].focus_set()  # Set focus back to the sign entry field for correction
-        return False    
-    else:
-        invalid_msg[1].config(text="")  # Clear error message if the sign is valid
-
-    # Validate that the account number is numeric
-    if not ac_no.isdigit():
-        a = 0   
-        invalid_msg[2].config(text="Account Number should be a digit", fg="red")  # Show error message for invalid account number
-        entries[2].focus_set()  # Set focus back to the account number entry field for correction
-        return False    
-    else:
-        invalid_msg[2].config(text="")  # Clear error message if the account number is valid
-
-    # Check that the account type is one of the valid types
-    List = ['Saving_A/C', 'Current_A/C', 'FD_A/C']  # List of valid account types
-    if AC_TYPE.get() in List:
-        invalid_msg[3].config(text="   ", fg="red")     
-    else:
-        print(AC_TYPE.get())  # Debug print to check the selected account type
-        invalid_msg[3].config(text="A/C type is required !!", fg="red")  # Show error message for invalid or missing account type
-        entries[2].focus_set()      
-        return      
-
-    # If all validations pass, proceed with enabling the next entry field and submitting the form
-    if a == 1:
-        entries[3].config(state='normal',bg="light green")      
-        entries[3].bind("<Return>", Submit)  # Bind the Enter key to the Submit function
-        entries[3].bind("<Button-1>", Submit)  # Bind mouse click to the Submit function
-        entries[3].focus_set()  
-
-        # Call the Submit function with parameters and get the result
-        res = Submit(Toplevel=toplevel, codition=3, amount_entry=amount_var, ac_no_var=ac_no_var, sign_entry=sign_var, AC_type=AC_TYPE)
-
-        if res:
-            return True  # Return True if submission was successful
-        else:
-            entries[3].config(state='disabled')  # Disable the next entry field if submission failed
-            entries[3].config(bg="SystemButtonFace")  # Reset background color to default
-
-            # Handle specific cases of submission failure by setting focus back to the corresponding entry field
-            if res == 2:
-                entries[2].focus_set()  # Focus back to account number entry if it was incorrect
-            elif res == 3:
-                entries[1].focus_set()  # Focus back to sign entry if it was incorrect
-            elif res == 4:
-                entries[0].focus_set()  # Focus back to amount entry if it was incorrect
-
-    else:
-        entries[4].config(state='disabled')  # Disable any further entry field if overall validation failed
 
     
 
@@ -1011,6 +1013,7 @@ def check_account():
         if  not account_no  :
             msg.showerror("Error", "Account number is required.")
             return
+        
         else:
             
             details=BankOperations.check(int(account_no))
@@ -1407,7 +1410,7 @@ def Acounts():
         Secret_key_Entry.grid_remove()
         Secret_key_invalid.grid_remove()
         chk.grid_remove()
-        
+
     def valid():
         Secret_key="1542"
         enter_key=(Secret_key_Entry.get())
