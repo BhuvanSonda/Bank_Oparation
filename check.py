@@ -128,11 +128,12 @@ class BankOperations:
             details=(f"Amount {amount} deposited in A/C No: {ac_no} \n New Balance: {read.at[index, 'Balance :']}")
             return details
         else:
-            if msg.askretrycancel("Error", f"Account No: {ac_no} does not exist"):# pop up message for error and ask for retry
-                ac=1
-            else:
-                ac=0
-            return ac
+            return "Account_not_found"
+            # if msg.askretrycancel("Error", f"Account No: {ac_no} does not exist"):# pop up message for error and ask for retry
+            #     ac=1
+            # else:
+            #     ac=0
+            # return ac
   
 
 #function for withdraw amount from the existing acount     
@@ -150,29 +151,17 @@ class BankOperations:
                         details=(f"Amount {amount} withdrawn from A/C No: {ac_no} \n Available balance : {read.at[index, 'Balance :']}")
                         return details
                     else:
-                        if msg.askretrycancel("Error", f"Insufficient balance in A/C No: {ac_no}"):#if balance is low and enterd amount is high on that time this pop will apeare
-                            ac=4
-                        else:
-                            ac=0    
-                        return ac
-                else:
-                    if msg.askretrycancel("Error", f"Account No: {ac_no} Signature is not Matched!"):#if signature is mismatched on that time this pop will apeare
-                        ac=3
-                    else:
-                        ac=0    
-                    return ac
-            else:
-                if msg.askretrycancel("Error", f"Account No: {ac_no} is not match the Type of bank acount"):
-                    ac=2
-                else:
-                    ac=0
-                return ac
+                        info="Insufficient_fund"    
+                        return info
+                else:                  
+                    info="Invalid_sign"    
+                    return info
+            else:               
+                info="Ac_Type_Not_Match"
+                return info
         else:
-            if msg.askretrycancel("Error", f"Account No: {ac_no} does not Exists!"):#if entered acount number is not existed then pop w.
-                ac=2
-            else:
-                ac=0    
-            return ac
+            info='Acount_not_exist'    
+            return info
    
     #function to check acount details 
     def check(account_no):
@@ -181,17 +170,14 @@ class BankOperations:
         if account_no in read["A/C No:"].values:#for check acount number is existing or not 
             index = read.index[read["A/C No:"] == account_no].tolist()[0]
             
-            details=(f"\n\nName : {read.at[index, 'Names']}\nA/C No : {read.at[index, 'A/C No:']}\nAvailable Balance : {read.at[index, 'Balance :']}")
+            details=(f"\tAcount Details:\n\nName : {read.at[index, 'Names']}\n\nA/C No : {read.at[index, 'A/C No:']}\n\nAvailable Balance : {read.at[index, 'Balance :']}\n\nMobile Number : {read.at[index, 'Mobile_No:']}\n\nAdhar Card Number : {read.at[index,'Adhar_No:']}\n\nAc Type : {read.at[index,'AC_TYPE']} ")
             return details
         else:
-            if msg.askretrycancel("Error", "Account number does not exist."):#if Acount number is not existed this popup notification will apeare
-                ac=1
-            else:
-                msg.showinfo("Information","Thank you for using our services")
-                ac=0
-            return ac   
+            info="Ac_Number_not_exist"
+            return info
+              
         
-    def remove(ac_no,name,sign,adhar_no,mobile_no,reason):
+    def remove(ac_no,name,sign,adhar_no,mobile_no,ac_type):
         read = Read_csv()
 
         if ac_no in read["A/C No:"].values:
@@ -200,115 +186,31 @@ class BankOperations:
             if read.at[index, "Names"] == name:
                 if read.at[index, "Sign:"] == sign:
                     if read.at[index, "Mobile_No:"] == mobile_no:
-                        if read.at[index, "Adhar_No:"] == adhar_no:                     
-                            return True
-                        else:
-                            if msg.askretrycancel("Error", "Adhar number does not match"):
-                                return 2
+                        if read.at[index, "Adhar_No:"] == adhar_no:
+                            if  read.at[index, "AC_TYPE"] == ac_type:
+                                return "removed"
                             else:
-                                return 3
-                    else:
-                        if msg.askretrycancel("Error", "Mobile number does not match"):
-                            return 2
+                                info="Ac_type_not_match"
+                                return info
                         else:
-                            return 3
+                            info="Adhar_number_not_match"
+                            return info
+                    else:
+                        info="Mobile_number_not_match"
+                        return info
                         
                 else:
-                    if msg.askretrycancel("Error", "Signature does not match"):
-                        return 2
-                    else:
-                        return 3
+                    info="Signature_not_match"
+                    return info
                     
             else:
-                if msg.askretrycancel("Error", "Name does not match"):
-                    return 2
-                else:
-                    return 3
+                info= "Name_not_match"
+                return info
                 
         else:
-            if msg.askretrycancel("Error", f"Account No: {ac_no} does not exist"):  # If account number is not found
-                return 2
-            else:
-                return 3
-
-def Arrow_keys(event, entries):
-    # Find the index of the current entry
-    current_index = entries.index(event.widget)
-    # Determine the next or previous index based on the arrow key pressed
-    if event.keysym == "Down" or event.keysym == "Right":
-        next_index = (current_index + 1) % len(entries)  # Move forward
-    elif event.keysym == "Up" or event.keysym == "Left":
-        next_index = (current_index - 1) % len(entries)  # Move backward
-    else:
-        return  # Ignore other keys
-
-    # Focus on the next or previous entry
-    entries[next_index].focus_set()
-
-#function to Handle Enter key
-def focus_next_entry(event=None,entries=None,Toplevel=None,mobile_var=None,adhar_var=None,
-                     amount_var=None,name_var=None,sign_var=None,new_sign_var=None,ac_no_var=None,check=None,Reason_var=None,ac_type=None,Msg=None):
-    # Find the index of the current entry
-    current_index = entries.index(event.widget)
-    # Calculate the index of the next entry
-    next_index = (current_index + 1) % len(entries)
-    # Focus on the next entry
-    entries[next_index].focus_set()#submit.focus_set()
-   
-    if check=='create_ac':#conditions to check we are in which type of operations 
-        amt = amount_var.get()
-        mbl = mobile_var.get()
-        adr = adhar_var.get()
-        nm = name_var.get()
-        sign = sign_var.get()
-        ac_Type = ac_type.get()
-
-        if amt=="" or mbl=="" or adr=="" or nm=='' or sign=='' or ac_Type=='':
-            return False
-        else:
-            create_valid(entries,Toplevel,mobile_var,adhar_var,amount_var,name_var,sign_var,ac_Type,Msg)
-
-    elif check=='credit':#conditions to check we are in which type of operations 
-        amt=amount_var.get()
-        ac_no=ac_no_var.get()
-        sign=sign_var.get()
-
-        if amt=="" or ac_no=="" or sign=="" :#if once all required input feilds are filles then only it enters next step
-            return False
-        
-        else:
-            with_draw_fun_res =withdraw_valid(entries,Toplevel,amount_var,ac_no_var,sign_var,ac_type,Msg)
-
-    elif check=='deposit':#conditions to check we are in which type of operations 
-        amt = amount_var.get()
-        ac_no = ac_no_var.get()
-        if amt=="" or ac_no=="":#if once all required input feilds are filles then only it enters next step
-            return False
-        else:
-            deposit_valid(entries,Toplevel,amount_var,ac_no_var,Message=Msg)  
-
-    elif check=='remove_ac':#conditions to check we are in which type of operations 
-        ac_no = ac_no_var.get()
-        mbl = mobile_var.get()
-        adr = adhar_var.get()
-        nm = name_var.get()
-        sign = sign_var.get()
-        reason=Reason_var.get()
-        Ac=ac_type.get()
-
-        if ac_no=="" or mbl=="" or adr=="" or nm=="" or sign=='' or reason =='':#if once all required input feilds are filles then only it enters next step
-            return False
-        else:
-            remove_valid(entries,toplevel=Toplevel,mobile_no=mobile_var,adhar_no=adhar_var,
-                     ac_no_var=ac_no_var,name_var=name_var,sign_var=sign_var,Reason=Reason_var,AC_TYPE=ac_type,Message=Msg)
-            
-    # elif check =='update':
-    #     if ac_no_var.get()=='' or sign_var.get()=="":
-    #         return False
-    #     else:
-
-    #         New_Update(ac_no_var,sign_var,new_sign_var,name_var,mobile_var,entries,Msg,Toplevel)
-    return 'break'
+            info="Ac_not_exist"  # If account number is not found
+            return info
+           
 
 # Fuction to Destroy/close the Toplevel window
 def close_toplevel(Toplevel):
@@ -384,287 +286,8 @@ def create_valid(entries,toplevel=None,mobile_var=None,adhar_var=None,amount_var
             BankOperations.create(name, sign, int(init_balance), mobile_no, adhar_no, AC_TYPE)
             close_toplevel(toplevel)  # Close the current Toplevel window')
 
-#valid checkup for Deposit amount
-def deposit_valid(entries,toplevel=None, amount_var=None, ac_no_var=None,Sub_btn=None,Message=None):
-    global a
-    a=1
-    amt=amount_var.get()
-    ac_no=ac_no_var.get()
-    invalid_msg = Message
-
-    if amt=="" or ac_no=="" :
-        a=0
-        invalid_msg[2].config(text="Please fill all the fields",fg="red")
-        return False
-    else:
-        invalid_msg[2].config(text='')
-
-    if not Validation.Amount(amt):
-        a = 0
-        invalid_msg[0].config(text="Invalid Amount Entry",fg="red")
-        entries[0].focus_set()
-        return False
-    else:
-        invalid_msg[0].config(text="")
-    
-    if not ac_no.isdigit():
-        a = 0
-        invalid_msg[1].config(text="Invalid Account Number",fg="red")
-        entries[1].focus_set()
-        return False
-    else:
-        invalid_msg[1].config(text="")
-    if a == 1:
-        details = BankOperations.deposit(int(ac_no), int(amt))
-        if details == 0:
-            close_toplevel(toplevel)  # Close the Toplevel window if the deposit is successful
-        elif details == 1:
-            return False  # Return False if the deposit fails
-        else:
-            close_toplevel(toplevel)    
-            msg.showinfo(title="Details", message=details)  # Show account details after a successful deposi
-    
-def remove_valid(entries, toplevel=None, mobile_no=None, adhar_no=None, ac_no_var=None, name_var=None,
-                 sign_var=None, Reason=None, AC_TYPE=None, Message=None):
-    global a  # Use global variable 'a' to track validation status
-    a = 1  # Initialize 'a' to 1, indicating that validation has passed so far
-
-    # Get input values from Tkinter variables
-    ac_no = ac_no_var.get()     
-    mobile_no = mobile_no.get()   
-    adhar_no = adhar_no.get()    
-    name = name_var.get()     
-    sign = sign_var.get()   
-    reason = Reason.get()   
-    Ac = AC_TYPE
-    invalid_msg = Message  #  list of message labels for displaying validation errors
-    read=Read_csv()
-
-    # Check if any of the required fields are empty
-    if ac_no == "" or mobile_no == "" or adhar_no == "" or name == "" or sign == '' or reason == '':
-        invalid_msg[6].config(text="Please fill all the fields",fg="red")
-        return False  # Exit function early if any field is empty
-
-    # Validate the entered name
-    if not Validation.Name(name):
-        a = 0  # Set validation flag to 0 indicating failure
-        invalid_msg[0].config(text="Invalid name entry", fg='red')  # Show error message for invalid name
-        entries[0].focus_set()  # Set focus back to the name entry field for correction
-        return False    
-    else:
-        invalid_msg[0].config(text="")  # Clear error message if the name is valid
-
-    if not ac_no.isdigit():
-        invalid_msg[1].config(text="Invalid input: Please enter a number.")
-        entries[1].focus_set() 
-        return False
-    else:
-        invalid_msg[1].config(text="")  # Clear the message if input is valid
-
-    # Validate the signature
-    if not Validation.Sign(sign):
-        a = 0   
-        invalid_msg[2].config(text="Invalid signature", fg='red')  # Show error message for invalid signature
-        entries[2].focus_set()  # Set focus back to the signature entry field for correction
-        return False    
-    else:
-        invalid_msg[2].config(text="")  # Clear error message if the signature is valid
-
-    # Validate Mobile Number
-    if not Validation.Mobile(mobile_no):
-        a = 0  # Set validation flag to 0 indicating failure
-        invalid_msg[3].config(text="Invalid mobile number", fg='red')  # Show error message for invalid mobile number
-        entries[3].focus_set()  
-        return False    
-    else:
-        invalid_msg[3].config(text="")  # Clear error message if the mobile number is valid
-
-    # Validate Aadhar Number
-    if not Validation.Adhar(adhar_no):
-        a = 0   
-        invalid_msg[4].config(text="Invalid adhar number", fg='red')  # Show error message for invalid Aadhar number
-        entries[4].focus_set()  # Set focus back to the Aadhar number entry field for correction
-        return False    
-    else:
-        invalid_msg[4].config(text="")  # Clear error message if the Aadhar number is valid
-
-    # Check that the account type is one of the valid types
-    List = ['Saving_A/C', 'Current_A/C', 'FD_A/C']  # List of valid account types
-    if Ac in List:
-       invalid_msg[5].config(text="   ", fg="red")  # Clear any previous error message for account type
-    else:
-
-        invalid_msg[5].config(text="A/C type is required !!", fg="red")  # Show error message for invalid or missing account type
-        entries[4].focus_set()  # Set focus back to the Aadhar entry field if account type is invalid
-        return  # Exit the function since account type is invalid
-
-    # If all validations pass, proceed with enabling the next entry field and submitting the form
-    if a == 1:
-        fun_response = BankOperations.remove(int(ac_no), str(name), str(sign), int(adhar_no), int(mobile_no), reason)
-        if fun_response == True:
-                # If account removal is successful, update the CSV file
-            ac = int(ac_no)
-            index = read.index[read["A/C No:"] == ac].tolist()[0]  # Find the index of the account to remove
-            print("index is =", index)
-            read.drop(index, inplace=True)  # Remove the row from the DataFrame
-            read.to_csv(Acounts_file, index=False)  # Save the changes to the CSV file
-            t = dt.datetime.now()  # Get the current datetime
-            time = (t.strftime("%d-%m-%Y   %H:%M:%S "))  # Format the datetime for logging
-            close_toplevel(toplevel)    
-            colsed(name, ac, sign, mobile_no=mobile_no, adhar_no=adhar_no, time=time, reason=reason)  #update the closed account details
-            msg.showinfo("Information", "Account removed successfully")     
-        else:
-            if fun_response == 3:
-                close_toplevel(toplevel)    
-            elif fun_response == 2:
-                return 1  # Disable the next entry field if validation failed
-
-#valid checkup for withdraw amount
-def withdraw_valid(entries, toplevel=None, amount_var=None, ac_no_var=None, sign_var=None, AC_TYPE=None, Message=None):
-    global a  # Use global variable 'a' to track validation status
-    a = 1  # Initialize 'a' to 1, indicating that validation has passed so far
-
-    # Get the input values from Tkinter variables
-    amt = amount_var.get()  
-    ac_no = ac_no_var.get()     
-    sign = sign_var.get()   
-    invalid_msg = Message  # Reference to the list of message labels for displaying validation errors
-
-    # Check if any of the required fields are empty
-    if amt == "" or ac_no == "" or sign == "":
-        invalid_msg[4].config(text="Please fill in all fields", fg="red")
-        return False  # Exit function early if any field is empty
-    else:
-        invalid_msg[4].config(text='')
-
-    # Validate the entered amount
-    if not Validation.Amount(amt):
-        a = 0  # Set validation flag to 0 indicating failure
-        invalid_msg[0].config(text="Invalid amount entry")  # Show error message for invalid amount
-        entries[0].focus_set()  # Set focus back to the amount entry field for correction
-        return False    
-    else:
-        invalid_msg[0].config(text="")  # Clear error message if the amount is valid
-
-    # Validate the sign entry
-    if not Validation.Sign(sign):
-        a = 0  # Set validation flag to 0 indicating failure
-        invalid_msg[1].config(text="Invalid sign entry")  # Show error message for invalid sign
-        entries[1].focus_set()  # Set focus back to the sign entry field for correction
-        return False    
-    else:
-        invalid_msg[1].config(text="")  # Clear error message if the sign is valid
-
-    # Validate that the account number is numeric
-    if not ac_no.isdigit():
-        a = 0   
-        invalid_msg[2].config(text="Account Number should be a digit", fg="red")  # Show error message for invalid account number
-        entries[2].focus_set()  # Set focus back to the account number entry field for correction
-        return False    
-    else:
-        invalid_msg[2].config(text="")  # Clear error message if the account number is valid
-
-    # Check that the account type is one of the valid types
-    List = ['Saving_A/C', 'Current_A/C', 'FD_A/C']  # List of valid account types
-    if AC_TYPE.get() in List:
-        invalid_msg[3].config(text="   ", fg="red")     
-    else:
-        print(AC_TYPE.get())  # Debug print to check the selected account type
-        invalid_msg[3].config(text="A/C type is required !!", fg="red")  # Show error message for invalid or missing account type
-        entries[2].focus_set()      
-        return      
-
-    # If all validations pass, proceed with enabling the next entry field and submitting the form
-    if a == 1:
-        details = BankOperations.withdraw(int(ac_no), float(amt), sign, AC_TYPE.get())
-        if details == 0:
-            close_toplevel(toplevel)    
-        else:
-                # Disable the next entry field if submission failed
-            # Handle specific cases of submission failure by setting focus back to the corresponding entry field
-            if details == 2:
-                entries[2].focus_set()  # Focus back to account number entry if it was incorrect
-            elif details == 3:
-                entries[1].focus_set()  # Focus back to sign entry if it was incorrect
-            elif details == 4:
-                entries[0].focus_set()  # Focus back to amount entry if it was incorrect
-            else:
-                close_toplevel(toplevel)  # Close the Toplevel window
-                msg.showinfo(title="Details", message=details)
-
-def Submit(entries=None, Toplevel=None, codition=None, name_entry=None, amount_entry=None, sign_entry=None,
-           mobile_entry=None, adhar_entry=None, ac_no_var=None, Reason=None, AC_type=None,invalids=None):
-    read = Read_csv()  # Read the CSV file and store its contents in a DataFrame
-    # Get input values from the Tkinter widgets
-    name = name_entry   
-    init_balance = amount_entry     
-    sign = sign_entry   
-    mobile_no = mobile_entry    
-    adhar_no = adhar_entry  
-    ac_No = ac_no_var   
-    reason = Reason     
-    
-    # Check the condition to determine which operation to perform
-    if codition == 1:
-        if not name or not init_balance or not sign or not mobile_no or not adhar_no :
-            msg.showerror("Error", "All fields are required")  # Show an error message if any field is empty
-            return False    
-        else:
-           create_valid(entries,Toplevel,mobile_no,adhar_no,init_balance,name,sign,AC_type.get(),invalids)
-
-    elif codition == 2:
-        # Depositing money into an existing account
-        # Validate that the required fields are filled
-        if not init_balance or not ac_No:
-            msg.showerror("Error", "All fields are required")  # Show an error message if any field is empty
-        
-            # Call the deposit function from BankOperations to deposit money into the account
-        else:
-            deposit_valid(entries,Toplevel,amount_entry,ac_no_var,Message=invalids)
-
-    elif codition == 3:
-        # Withdrawing money from an existing account
-        # Validate that the required fields are filled
-        if not init_balance or not ac_No or not sign:
-            msg.showerror("Error", "All fields are required")  # Show an error message if any field is empty
-        else:
-            withdraw_valid(entries,Toplevel,init_balance,ac_no_var,sign,AC_type,invalids)
-
-    elif codition == 4:
-        # Removing an existing account
-        # Validate that all required fields are filled
-        if not name or not ac_No or not sign or not mobile_no or not adhar_no or not reason:
-            msg.showerror("Error", "All fields are required")  # Show an error message if any field is empty
-            return False    
-        else:
-            remove_valid(entries,Toplevel,mobile_no,adhar_no,
-                     ac_no_var,name_entry,sign_entry,Reason,AC_type,invalids)
-            # Call the remove function from BankOperations to remove the account
-            # fun_response = BankOperations.remove(int(ac_No), str(name), str(sign), int(adhar_no), int(mobile_no), reason)
-            # if fun_response == True:
-            #     # If account removal is successful, update the CSV file
-            #     ac = int(ac_No)
-            #     index = read.index[read["A/C No:"] == ac].tolist()[0]  # Find the index of the account to remove
-            #     print("index is =", index)
-            #     read.drop(index, inplace=True)  # Remove the row from the DataFrame
-            #     read.to_csv(Acounts_file, index=False)  # Save the changes to the CSV file
-            #     t = dt.datetime.now()  # Get the current datetime
-            #     time = (t.strftime("%d-%m-%Y   %H:%M:%S "))  # Format the datetime for logging
-            #     close_toplevel(Toplevel)    
-            #     colsed(name, ac, sign, mobile_no=mobile_no, adhar_no=adhar_no, time=time, reason=reason)  #update the closed account details
-            #     msg.showinfo("Information", "Account removed successfully")     
-            # else:
-            #     if fun_response == 3:
-            #         close_toplevel(Toplevel)    
-            #     elif fun_response == 2:
-            #         return 1  
-                
-#function for create acount button 
 def create_account():
 
-    def P():
-        return (selected_ac.get())
-      
     mini=tk.Toplevel(window)#to create child window
     mini.title("Create Account")
     Toplevel=mini
@@ -728,7 +351,7 @@ def create_account():
 
     for i in range(len(type_of_ac)):
         # Create a Radiobutton for each account type
-        tk.Radiobutton(mini, text=type_of_ac[i], variable=selected_ac, value=type_of_ac[i],font=("Arial",12,),command=P).grid(row=11, column=i)
+        tk.Radiobutton(mini, text=type_of_ac[i], variable=selected_ac, value=type_of_ac[i],font=("Arial",12,),).grid(row=11, column=i)
     radio_invalid_msg = tk.Label(mini, text="", fg="red")
     radio_invalid_msg.grid(row=12, column=1, padx=10, pady=0)
 
@@ -755,7 +378,45 @@ def create_account():
     mini.mainloop()
 
 
-#function for deposit button
+#valid checkup for Deposit amount
+def deposit_valid(entries,toplevel=None, amount_var=None, ac_no_var=None,Sub_btn=None,Message=None):
+    global a
+    a=1
+    amt=amount_var.get()
+    ac_no=ac_no_var.get()
+    invalid_msg = Message
+
+    if amt=="" or ac_no=="" :
+        a=0
+        invalid_msg[2].config(text="Please fill all the fields",fg="red")
+        return False
+    else:
+        invalid_msg[2].config(text='')
+
+    if not Validation.Amount(amt):
+        a = 0
+        invalid_msg[0].config(text="Invalid Amount Entry",fg="red")
+        entries[0].focus_set()
+        return False
+    else:
+        invalid_msg[0].config(text="")
+    
+    if not ac_no.isdigit():
+        a = 0
+        invalid_msg[1].config(text="Invalid Account Number",fg="red")
+        entries[1].focus_set()
+        return False
+    else:
+        invalid_msg[1].config(text="")
+    if a == 1:
+        details = BankOperations.deposit(int(ac_no), int(amt))
+        if details == "Account_not_found":
+            invalid_msg[2].config(text="Account number is not found!!",fg="red")
+            entries[1].focus_set()
+        else:
+            close_toplevel(toplevel)    
+            msg.showinfo(title="Details", message=details)  # Show account details after a successful deposi
+
 def deposit_amount():
           
     mini=tk.Toplevel()
@@ -805,7 +466,305 @@ def deposit_amount():
     mini.resizable(True,True)
     mini.mainloop()
 
-#function for withdraw button
+def remove_valid(entries, toplevel=None, mobile_no=None, adhar_no=None, ac_no_var=None, name_var=None,
+                 sign_var=None, Reason=None, AC_TYPE=None, Message=None):
+    global a  # Use global variable 'a' to track validation status
+    a = 1  # Initialize 'a' to 1, indicating that validation has passed so far
+
+    # Get input values from Tkinter variables
+    ac_no = ac_no_var.get()     
+    mobile_no = mobile_no.get()   
+    adhar_no = adhar_no.get()    
+    name = name_var.get()     
+    sign = sign_var.get()   
+    reason = Reason.get()   
+    Ac = AC_TYPE
+    invalid_msg = Message  #  list of message labels for displaying validation errors
+    read=Read_csv()
+
+    # Check if any of the required fields are empty
+    if ac_no == "" or mobile_no == "" or adhar_no == "" or name == "" or sign == '' or reason == '':
+        invalid_msg[7].config(text="Please fill all the fields",fg="red")
+        return False  # Exit function early if any field is empty
+    invalid_msg[7].config(text="")
+
+    # Validate the entered name
+    if not Validation.Name(name):
+        a = 0  # Set validation flag to 0 indicating failure
+        invalid_msg[0].config(text="Invalid name entry", fg='red')  # Show error message for invalid name
+        entries[0].focus_set()  # Set focus back to the name entry field for correction
+        return False    
+    else:
+        invalid_msg[0].config(text="")  # Clear error message if the name is valid
+
+    if not ac_no.isdigit():
+        invalid_msg[1].config(text="Invalid input: Please enter a number.")
+        entries[1].focus_set() 
+        return False
+    else:
+        invalid_msg[1].config(text="")  # Clear the message if input is valid
+
+    # Validate the signature
+    if not Validation.Sign(sign):
+        a = 0   
+        invalid_msg[2].config(text="Invalid signature", fg='red')  # Show error message for invalid signature
+        entries[2].focus_set()  # Set focus back to the signature entry field for correction
+        return False    
+    else:
+        invalid_msg[2].config(text="")  # Clear error message if the signature is valid
+
+    # Validate Mobile Number
+    if not Validation.Mobile(mobile_no):
+        a = 0  # Set validation flag to 0 indicating failure
+        invalid_msg[3].config(text="Invalid mobile number", fg='red')  # Show error message for invalid mobile number
+        entries[3].focus_set()  
+        return False    
+    else:
+        invalid_msg[3].config(text="")  # Clear error message if the mobile number is valid
+
+    # Validate Aadhar Number
+    if not Validation.Adhar(adhar_no):
+        a = 0   
+        invalid_msg[4].config(text="Invalid adhar number", fg='red')  # Show error message for invalid Aadhar number
+        entries[4].focus_set()  # Set focus back to the Aadhar number entry field for correction
+        return False    
+    else:
+        invalid_msg[4].config(text="")  # Clear error message if the Aadhar number is valid
+    
+    if not reason:
+        invalid_msg[5].config(text="Please ulpoad your file ",fg="red")
+    else:
+        invalid_msg[5].config(text="",fg="red")
+
+    # Check that the account type is one of the valid types
+    List = ['Saving_A/C', 'Current_A/C', 'FD_A/C']  # List of valid account types
+    if Ac in List:
+       invalid_msg[6].config(text="   ", fg="red")  # Clear any previous error message for account type
+    else:
+
+        invalid_msg[6].config(text="A/C type is required !!", fg="red")  # Show error message for invalid or missing account type
+        entries[4].focus_set()  # Set focus back to the Aadhar entry field if account type is invalid
+        return  # Exit the function since account type is invalid
+
+    # If all validations pass, proceed with enabling the next entry field and submitting the form
+    if a == 1:
+        details = BankOperations.remove(int(ac_no), str(name), str(sign), int(adhar_no), int(mobile_no),Ac)
+        if details =="removed":
+                # If accou"nt removal is successful, update the CSV file
+            ac = int(ac_no)
+            index = read.index[read["A/C No:"] == ac].tolist()[0]  # Find the index of the account to remove
+            print("index is =", index)
+            read.drop(index, inplace=True)  # Remove the row from the DataFrame
+            read.to_csv(Acounts_file, index=False)  # Save the changes to the CSV file
+            t = dt.datetime.now()  # Get the current datetime
+            time = (t.strftime("%d-%m-%Y   %H:%M:%S "))  # Format the datetime for logging
+            close_toplevel(toplevel)    
+            colsed(name, ac, sign, mobile_no=mobile_no, adhar_no=adhar_no, time=time, reason=reason)  #update the closed account details
+            msg.showinfo("Information", "Account removed successfully")     
+        else:
+            if details == "Ac_not_exist":
+                invalid_msg[1].config(text="Acont number does not exists!!",fg='red')
+                entries[1].focus_set()
+                  
+            elif details == "Name_not_match":
+                invalid_msg[0].config(text=" Name Doesn't matched!!",fg='red')  # Disable the next entry field if validation failed
+                entries[0].focus_set()
+
+            elif details == "Signature_not_match":
+                invalid_msg[2].config(text="Signature is not match !!",fg='red')
+                entries[2].focus_set()
+
+            elif details == "Mobile_number_not_match":
+                invalid_msg[3].config(text="Mobile number is not match !!",fg='red')
+                entries[3].focus_set()
+            
+            elif details == "Adhar_number_not_match":
+                invalid_msg[4].config(text="Adhar number is not match !!",fg='red')
+                entries[4].focus_set()
+
+            elif details == "Ac_type_not_match":
+                invalid_msg[5].config(text="Account type is not match !!",fg='red')
+                entries[4].focus_set()
+            
+def remove_ac():
+
+    mini=tk.Toplevel()
+    mini.title("Remove Account")
+    Toplevel=mini
+
+    name=tk.Label(mini,text="Enter Name :",font=("Arial",10))
+    name.grid(row=1,column=0,padx=10,pady=10)
+    name_var=tk.StringVar()
+    name_entry=tk.Entry(mini,textvariable=name_var,width=30)
+    name_entry.grid(row=1,column=1,padx=10,pady=10)
+    name_invalid_msg=tk.Label(mini)
+    name_invalid_msg.grid(row=2,column=1)
+
+    ac_no=tk.Label(mini, text="Enter Account Number",font=("Arial",10))
+    ac_no.grid(row=3,column=0,padx=10,pady=10)
+    ac_no_var=tk.StringVar()
+    ac_no_Entry=tk.Entry(mini,width=30,textvariable=ac_no_var)
+    ac_no_Entry.grid(row=3,column=1,padx=10,pady=10)
+    
+    ac_no_invalid_msg=tk.Label(mini,fg='red')
+    ac_no_invalid_msg.grid(row=4,column=1)
+    
+    sign=tk.Label(mini,text='Enter Signature :',font=("Arial",10))
+    sign.grid(row=5,column=0,padx=10,pady=10)
+    sign_var=tk.StringVar()
+    sign_entry=tk.Entry(mini,textvariable=sign_var,width=30)
+    sign_entry.grid(row=5,column=1,padx=10,pady=10)
+   
+    sign_invalid_msg=tk.Label(mini,fg='red')
+    sign_invalid_msg.grid(row=6,column=1)
+
+    mobile=tk.Label(mini,text='Enter Mobile Number :',font=("Arial",10))
+    mobile.grid(row=7,column=0,padx=10,pady=10)
+    mobile_var = tk.StringVar()
+    mobile_entry=tk.Entry(mini,width=30,textvariable=mobile_var)
+    mobile_entry.grid(row=7,column=1,padx=10,pady=10)
+ 
+    mobile_invalid_msg=tk.Label(mini)
+    mobile_invalid_msg.grid(row=8,column=1)
+
+    adhar=tk.Label(mini,text='Enter Adhar_Card Number :',font=("Arial",10))
+    adhar.grid(row=9,column=0,padx=10,pady=10)
+    adhar_var=tk.StringVar()
+    adhar_entry=tk.Entry(mini,width=30,textvariable=adhar_var)
+    adhar_entry.grid(row=9,column=1,padx=10,pady=10)
+   
+    adhar_invalid_msg=tk.Label(mini)
+    adhar_invalid_msg.grid(row=10,column=1)
+
+
+    # Replace Reason Entry with Browse Button
+    reason_label = tk.Label(mini, text="Upload Reason File:", font=("Arial", 10))
+    reason_label.grid(row=11, column=0, padx=10, pady=10)
+    reason_var = tk.StringVar()
+    reason_entry = tk.Entry(mini, textvariable=reason_var, width=30, state='readonly')
+    reason_entry.grid(row=11, column=1, padx=10, pady=10)
+    upload_btn = tk.Button(mini, text="Upload file", command=lambda : browse_file(reason_var))
+    upload_btn.grid(row=11, column=2, padx=10, pady=10)
+
+    reason_invalid_msg = tk.Label(mini)
+    reason_invalid_msg.grid(row=12, column=1)
+
+
+    type_of_ac=['Saving_A/C','Current_A/C','FD_A/C']
+
+    # Create a StringVar to hold the value of the selected radiobutton
+    selected_ac = tk.StringVar(value=-1)
+
+    
+    for i in range(len(type_of_ac)):
+        # Create a Radiobutton for each account type
+        tk.Radiobutton(mini, text=type_of_ac[i], variable=selected_ac, value=type_of_ac[i]
+                       ,font=("Arial",12,)).grid(row=13, column=i)
+    radio_invalid_msg = tk.Label(mini)
+    radio_invalid_msg.grid(row=14, column=1)
+
+    submit_invalid_msg=tk.Label(mini,text='',font=('',13,'bold'))
+    submit_invalid_msg.grid(row=17,column=0,padx=10,pady=10,columnspan=3)
+
+    entries = [name_entry, ac_no_Entry, sign_entry, mobile_entry, adhar_entry,reason_entry]
+    invalid_msg=[name_invalid_msg,ac_no_invalid_msg,sign_invalid_msg,mobile_invalid_msg,adhar_invalid_msg,
+             reason_invalid_msg,radio_invalid_msg,submit_invalid_msg]
+
+    submit_btn=tk.Button(mini,text='SUBMIT',font=("Arial",10),command=lambda : remove_valid(entries,Toplevel,mobile_entry,adhar_entry,
+                     ac_no_var,name_entry,sign_entry,reason_entry,selected_ac.get(),invalid_msg))
+    submit_btn.grid(row=15,column=0,padx=10,pady=10,columnspan=2)
+
+    
+# Bind the Enter key event to move focus
+    for entry in entries:
+        entry.bind("<Return>", lambda event : focus_next_entry(event,entries, Toplevel=Toplevel,mobile_var=mobile_var,adhar_var=adhar_var,
+                                                                               ac_no_var=ac_no_var,name_var=name_var,sign_var=sign_var,
+                                                                               check='remove_ac',Reason_var=reason_var,ac_type=selected_ac,Msg=invalid_msg ))
+    
+        entry.bind("<Down>", lambda event : Arrow_keys(event,entries))
+        entry.bind("<Up>", lambda event : Arrow_keys(event,entries))
+
+    mini.grab_set()# to freeze the buttons in main window untill close toplevel window
+    mini.resizable(True,True)
+    mini.mainloop()
+#valid checkup for withdraw amount
+def withdraw_valid(entries, toplevel=None, amount_var=None, ac_no_var=None, sign_var=None, AC_TYPE=None, Message=None):
+    global a  # Use global variable 'a' to track validation status
+    a = 1  # Initialize 'a' to 1, indicating that validation has passed so far
+
+    # Get the input values from Tkinter variables
+    amt = amount_var.get()  
+    ac_no = ac_no_var.get()     
+    sign = sign_var.get()   
+    invalid_msg = Message  # Reference to the list of message labels for displaying validation errors
+
+    # Check if any of the required fields are empty
+    if amt == "" or ac_no == "" or sign == "":
+        invalid_msg[4].config(text="Please fill in all fields", fg="red")
+        return False  # Exit function early if any field is empty
+    else:
+        invalid_msg[4].config(text='')
+
+    # Validate the entered amount
+    if not Validation.Amount(amt):
+        a = 0  # Set validation flag to 0 indicating failure
+        invalid_msg[0].config(text="Invalid amount entry")  # Show error message for invalid amount
+        entries[0].focus_set()  # Set focus back to the amount entry field for correction
+        return False    
+    else:
+        invalid_msg[0].config(text="")  # Clear error message if the amount is valid
+
+    # Validate the sign entry
+    if not Validation.Sign(sign):
+        a = 0  # Set validation flag to 0 indicating failure
+        invalid_msg[1].config(text="Invalid sign entry")  # Show error message for invalid sign
+        entries[1].focus_set()  # Set focus back to the sign entry field for correction
+        return False    
+    else:
+        invalid_msg[1].config(text="")  # Clear error message if the sign is valid
+
+    # Validate that the account number is numeric
+    if not ac_no.isdigit():
+        a = 0   
+        invalid_msg[2].config(text="Account Number should be a digit", fg="red")  # Show error message for invalid account number
+        entries[2].focus_set()  # Set focus back to the account number entry field for correction
+        return False    
+    else:
+        invalid_msg[2].config(text="")  # Clear error message if the account number is valid
+
+    # Check that the account type is one of the valid types
+    List = ['Saving_A/C', 'Current_A/C', 'FD_A/C']  # List of valid account types
+    if AC_TYPE.get() in List:
+        invalid_msg[3].config(text="   ", fg="red")     
+    else:
+        print(AC_TYPE.get())  # Debug print to check the selected account type
+        invalid_msg[3].config(text="A/C type is required !!", fg="red")  # Show error message for invalid or missing account type
+        entries[2].focus_set()      
+        return      
+
+    # If all validations pass, proceed with enabling the next entry field and submitting the form
+    if a == 1:
+        details = BankOperations.withdraw(int(ac_no), float(amt), sign, AC_TYPE.get())
+        if details == 'Acount_not_exist':
+            invalid_msg[2].config(text="Account Number does not exist", fg="red")
+            entries[2].focus_set()
+
+        elif details =="Ac_Type_Not_Match" :
+            invalid_msg[3].config(text="Account Type does not match", fg="red")
+            entries[2].focus_set() 
+
+        elif details == "Invalid_sign":
+            invalid_msg[1].config(text="Signature is not Valid!!", fg="red")
+            entries[1].focus_set() 
+
+        elif details == "Insufficient_fund":
+            invalid_msg[0].config(text="Insufficient fund", fg="red")
+            entries[0].focus_set()
+
+        else:
+            close_toplevel(toplevel)  # Close the Toplevel window
+            msg.showinfo(title="Details", message=details)
+
 def withdraw_amount():
     
     mini = tk.Toplevel()
@@ -859,72 +818,41 @@ def withdraw_amount():
 
 # Bind the Enter key event to move focus
     for entry in entries:
-        entry.bind("<Return>", lambda event, entries=entries: focus_next_entry(event, entries,Toplevel,amount_var=amount_var,
+        entry.bind("<Return>", lambda event: focus_next_entry(event, entries,Toplevel,amount_var=amount_var,
                                                                                ac_no_var=ac_no_var,sign_var=sign_var,check='credit',
                                                                                ac_type=selected_ac,Msg=invalid_msg))
-        entry.bind("<Down>", lambda event, entries=entries: Arrow_keys(event,entries))
-        entry.bind("<Up>", lambda event, entries=entries: Arrow_keys(event,entries))
+        entry.bind("<Down>", lambda event: Arrow_keys(event,entries))
+        entry.bind("<Up>", lambda event: Arrow_keys(event,entries))
                                             # withdraw_valid(entries,Toplevel,init_balance,ac_no_var,sign,AC_type,invalids)
-    submit_btn = tk.Button(mini, text='SUBMIT', font=("Arial", 10), command=lambda:withdraw_valid(entries,Toplevel,amount_var,ac_no_var,sign_var,selected_ac.get(),invalid_msg))
+    submit_btn = tk.Button(mini, text='SUBMIT', font=("Arial", 10), command=lambda:withdraw_valid(entries,Toplevel,amount_var,ac_no_var,sign_var,selected_ac,invalid_msg))
     submit_btn.grid(row=9, column=0, padx=10, pady=10, columnspan=2)
 
 
     mini.grab_set()  # to freeze the buttons in the main window until the toplevel window is closed
     mini.mainloop()
 
-#function for check button in main window
+
+def check_valid(ac_no_entry,invalid_msg,entry,Toplevel):
+    ac_no=ac_no_entry.get()
+
+    if ac_no=='':
+        invalid_msg.config(text=" Please enter Acount number.")
+
+    if not ac_no.isdigit():
+        invalid_msg.config(text="Invalid input: Please enter a number.")
+        return False
+    else:
+        invalid_msg.config(text="")     
+        details=BankOperations.check(int(ac_no))
+
+        if details=="Ac_Number_not_exist":
+            invalid_msg.config(text="Account number does not exist.")
+            entry.focus_set()
+        else:
+            close_toplevel(Toplevel)
+            msg.showinfo(title="Details",message=details)
+
 def check_account():
-
-    click_limit =3
-    click_count = [0]
-    
-    def validate():#to validate the entry box inputs
-
-        ac_no=ac_no_entry.get()
-        if not ac_no.isdigit():
-            invalid_msg.config(text="Invalid input: Please enter a number.")
-            return False
-        else:
-            invalid_msg.config(text="")  # Clear the message if input is valid
-            
-        if ac_no.isdigit():
-            ac_no_entry.config(fg='black')
-            #ac_no_entry.config(bg='light green') 
-            submit_btn.config(state='normal',bg='light green')
-            entries.append(submit_btn)
-            #submit_btn.focus_set()
-            submit_btn.bind("<Return>",Submit)
-            submit_btn.bind("<Button-1>",Submit)
-
-           
-        else:
-            ac_no_entry.config(fg='red')  
-            submit_btn.config(state='disabled',bg='SystemButtonFace')
-    def Submit(event):
-        if len(click_count) >= click_limit:
-            mini.destroy()
-            msg.showwarning("Limit Reached", "You have reached the maximum number of submissions.")
-                    
-        click_count.append(1)
-        account_no = ac_no_entry.get()
-        if  not account_no  :
-            msg.showerror("Error", "Account number is required.")
-            return
-        
-        else:
-            
-            details=BankOperations.check(int(account_no))
-
-            if details==0:
-                mini.destroy()
-              
-            elif details==1:
-                return
-            else:
-                close_toplevel(mini)
-                msg.showinfo(title="Details",message=details)
-                # mini.destroy()
-
 
     M=tk.Toplevel()
     mini=M
@@ -936,132 +864,102 @@ def check_account():
     ac_no_var=tk.StringVar()
     ac_no_entry=tk.Entry(mini,width=30,textvariable=ac_no_var)
     ac_no_entry.grid(row=1,column=1,padx=10,pady=10)
-    ac_no_entry.bind("<KeyRelease>",lambda event:validate())
     
-    submit_btn=tk.Button(mini,text='SUBMIT',font=("Arial",10),command=Submit,state="disabled")
-    submit_btn.grid(row=3,column=0,padx=10,pady=10,columnspan=2)
-
     invalid_msg = tk.Label(mini, text="", fg="red")
     invalid_msg.grid(row=2,column=0,padx=10,pady=10,columnspan=2)
-    entries = [ ac_no_entry]
 
+    submit_btn=tk.Button(mini,text='SUBMIT',font=("Arial",10),command=lambda:check_valid(ac_no_entry,invalid_msg,ac_no_entry,Toplevel=mini))
+    submit_btn.grid(row=3,column=0,padx=10,pady=10,columnspan=2)
+
+    
 # Bind the Enter key event to move focus
-    for entry in entries:
-        entry.bind("<Return>", lambda event, entries=entries: focus_next_entry(event, entries))
+    entries=[ac_no_entry]
+    ac_no_entry.bind("<Return>", lambda event: focus_next_entry(event, entries,mini,check="Ac_check",ac_no_var=ac_no_entry,Msg=invalid_msg))
 
     mini.grab_set()# to freeze the buttons in main window untill close toplevel window
     mini.resizable(True,True)
     mini.mainloop()
 
-def remove_ac():
+def Arrow_keys(event, entries):
+    # Find the index of the current entry
+    current_index = entries.index(event.widget)
+    # Determine the next or previous index based on the arrow key pressed
+    if event.keysym == "Down" or event.keysym == "Right":
+        next_index = (current_index + 1) % len(entries)  # Move forward
+    elif event.keysym == "Up" or event.keysym == "Left":
+        next_index = (current_index - 1) % len(entries)  # Move backward
+    else:
+        return  # Ignore other keys
 
-    def browse_file():
+    # Focus on the next or previous entry
+    entries[next_index].focus_set()
+
+#function to Handle Enter key
+def focus_next_entry(event=None,entries=None,Toplevel=None,mobile_var=None,adhar_var=None,
+                     amount_var=None,name_var=None,sign_var=None,new_sign_var=None,ac_no_var=None,check=None,Reason_var=None,ac_type=None,Msg=None):
+    # Find the index of the current entry
+    current_index = entries.index(event.widget)
+    # Calculate the index of the next entry
+    next_index = (current_index + 1) % len(entries)
+    # Focus on the next entry
+    entries[next_index].focus_set()#submit.focus_set()
+   
+    if check=='create_ac':#conditions to check we are in which type of operations 
+        amt = amount_var.get()
+        mbl = mobile_var.get()
+        adr = adhar_var.get()
+        nm = name_var.get()
+        sign = sign_var.get()
+        ac_Type = ac_type.get()
+
+        if amt=="" or mbl=="" or adr=="" or nm=='' or sign=='' or ac_Type=='':
+            return False
+        else:
+            create_valid(entries,Toplevel,mobile_var,adhar_var,amount_var,name_var,sign_var,ac_Type,Msg)
+
+    elif check=='credit':#conditions to check we are in which type of operations 
+        amt=amount_var.get()
+        ac_no=ac_no_var.get()
+        sign=sign_var.get()
+
+        if amt=="" or ac_no=="" or sign=="" :#if once all required input feilds are filles then only it enters next step
+            return False
+        
+        else:
+            with_draw_fun_res =withdraw_valid(entries,Toplevel,amount_var,ac_no_var,sign_var,ac_type,Msg)
+
+    elif check=='deposit':#conditions to check we are in which type of operations 
+        amt = amount_var.get()
+        ac_no = ac_no_var.get()
+        if amt=="" or ac_no=="":#if once all required input feilds are filles then only it enters next step
+            return False
+        else:
+            deposit_valid(entries,Toplevel,amount_var,ac_no_var,Message=Msg)  
+
+    elif check=='remove_ac':#conditions to check we are in which type of operations 
+        ac_no = ac_no_var.get()
+        mbl = mobile_var.get()
+        adr = adhar_var.get()
+        nm = name_var.get()
+        sign = sign_var.get()
+        reason=Reason_var.get()
+        Ac=ac_type.get()
+
+        if ac_no=="" or mbl=="" or adr=="" or nm=="" or sign=='' or reason =='':#if once all required input feilds are filles then only it enters next step
+            return False
+        else:
+            remove_valid(entries,toplevel=Toplevel,mobile_no=mobile_var,adhar_no=adhar_var,
+                                          ac_no_var=ac_no_var,name_var=name_var,sign_var=sign_var,Reason=Reason_var,AC_TYPE=Ac,Message=Msg)
+    elif check == "Ac_check":
+        check_valid(ac_no_var,Msg,entries,Toplevel)
+
+    return 'break'       
+
+def browse_file(reason_var):
         file_path = filedialog.askopenfilename(title="Select File", filetypes=(("Text files", "*.txt"), ("All files", "*.*")))
         if file_path:
             reason_var.set(file_path)
         
-
-   
-    mini=tk.Toplevel()
-    mini.title("Remove Account")
-    Toplevel=mini
-
-    name=tk.Label(mini,text="Enter Name :",font=("Arial",10))
-    name.grid(row=1,column=0,padx=10,pady=10)
-    name_var=tk.StringVar()
-    name_entry=tk.Entry(mini,textvariable=name_var,width=30)
-    name_entry.grid(row=1,column=1,padx=10,pady=10)
-    name_invalid_msg=tk.Label(mini)
-    name_invalid_msg.grid(row=2,column=1)
-    #name_entry.bind("<KeyRelease>", lambda event: validate_inputs())
-
-    ac_no=tk.Label(mini, text="Enter Account Number",font=("Arial",10))
-    ac_no.grid(row=3,column=0,padx=10,pady=10)
-    ac_no_var=tk.StringVar()
-    ac_no_Entry=tk.Entry(mini,width=30,textvariable=ac_no_var)
-    ac_no_Entry.grid(row=3,column=1,padx=10,pady=10)
-    
-    ac_no_invalid_msg=tk.Label(mini)
-    ac_no_invalid_msg.grid(row=4,column=1)
-    
-    sign=tk.Label(mini,text='Enter Signature :',font=("Arial",10))
-    sign.grid(row=5,column=0,padx=10,pady=10)
-    sign_var=tk.StringVar()
-    sign_entry=tk.Entry(mini,textvariable=sign_var,width=30)
-    sign_entry.grid(row=5,column=1,padx=10,pady=10)
-   
-    sign_invalid_msg=tk.Label(mini)
-    sign_invalid_msg.grid(row=6,column=1)
-
-    mobile=tk.Label(mini,text='Enter Mobile Number :',font=("Arial",10))
-    mobile.grid(row=7,column=0,padx=10,pady=10)
-    mobile_var = tk.StringVar()
-    mobile_entry=tk.Entry(mini,width=30,textvariable=mobile_var)
-    mobile_entry.grid(row=7,column=1,padx=10,pady=10)
- 
-    mobile_invalid_msg=tk.Label(mini)
-    mobile_invalid_msg.grid(row=8,column=1)
-
-    adhar=tk.Label(mini,text='Enter Adhar_Card Number :',font=("Arial",10))
-    adhar.grid(row=9,column=0,padx=10,pady=10)
-    adhar_var=tk.StringVar()
-    adhar_entry=tk.Entry(mini,width=30,textvariable=adhar_var)
-    adhar_entry.grid(row=9,column=1,padx=10,pady=10)
-   
-    adhar_invalid_msg=tk.Label(mini)
-    adhar_invalid_msg.grid(row=10,column=1)
-
-
-    # Replace Reason Entry with Browse Button
-    reason_label = tk.Label(mini, text="Upload Reason File:", font=("Arial", 10))
-    reason_label.grid(row=11, column=0, padx=10, pady=10)
-    reason_var = tk.StringVar()
-    reason_entry = tk.Entry(mini, textvariable=reason_var, width=30, state='readonly')
-    reason_entry.grid(row=11, column=1, padx=10, pady=10)
-    upload_btn = tk.Button(mini, text="Upload file", command=browse_file)
-    upload_btn.grid(row=11, column=2, padx=10, pady=10)
-
-    reason_invalid_msg = tk.Label(mini)
-    reason_invalid_msg.grid(row=12, column=1)
-
-
-    type_of_ac=['Saving_A/C','Current_A/C','FD_A/C']
-
-    # Create a StringVar to hold the value of the selected radiobutton
-    selected_ac = tk.StringVar(value=-1)
-
-    
-    for i in range(len(type_of_ac)):
-        # Create a Radiobutton for each account type
-        tk.Radiobutton(mini, text=type_of_ac[i], variable=selected_ac, value=type_of_ac[i]
-                       ,font=("Arial",12,)).grid(row=13, column=i)
-    radio_invalid_msg = tk.Label(mini)
-    radio_invalid_msg.grid(row=14, column=1)
-
-    submit_invalid_msg=tk.Label(mini,text='',font=('',13,'bold'))
-    submit_invalid_msg.grid(row=17,column=0,padx=10,pady=10,columnspan=3)
-
-    entries = [name_entry, ac_no_Entry, sign_entry, mobile_entry, adhar_entry,reason_entry]
-    invalid_msg=[name_invalid_msg,ac_no_invalid_msg,sign_invalid_msg,mobile_invalid_msg,adhar_invalid_msg,
-             radio_invalid_msg,submit_invalid_msg]
-
-    submit_btn=tk.Button(mini,text='SUBMIT',font=("Arial",10),command=lambda : remove_valid(entries,Toplevel,mobile_entry,adhar_entry,
-                     ac_no_var,name_entry,sign_entry,reason_entry,selected_ac.get(),invalid_msg))
-    submit_btn.grid(row=15,column=0,padx=10,pady=10,columnspan=2)
-
-    
-# Bind the Enter key event to move focus
-    for entry in entries:
-        entry.bind("<Return>", lambda event, entries=entries: focus_next_entry(event,entries, Toplevel=Toplevel,mobile_var=mobile_var,adhar_var=adhar_var,
-                                                                               ac_no_var=ac_no_var,name_var=name_var,sign_var=sign_var,
-                                                                               check='remove_ac',Reason_var=reason_var,ac_type=selected_ac,Msg=invalid_msg ))
-    
-        entry.bind("<Down>", lambda event, entries=entries: Arrow_keys(event,entries))
-        entry.bind("<Up>", lambda event, entries=entries: Arrow_keys(event,entries))
-
-    mini.grab_set()# to freeze the buttons in main window untill close toplevel window
-    mini.resizable(True,True)
-    mini.mainloop()
 
 def New_Update(ac_no_var=None, old_sign=None, new_sign=None, name=None, mobile_no=None, Entries=None, invalids=None,topleve=None):
     read = Read_csv()  # Read the CSV file to get the latest account information
@@ -1091,9 +989,9 @@ def New_Update(ac_no_var=None, old_sign=None, new_sign=None, name=None, mobile_n
 
         # Check if the account number exists in the CSV file
     
-    if int(ac) not in read["A/C No:"].values:                           #entries = [ac_no_entry, sign_entry, name_entry, new_sign_entry, mobile_entry]
+    if int(ac) not in read["A/C No:"].values:                           
         Entries[0].focus_set() 
-        msg.showerror("Error", "Account Number does not exist")
+        invalids[0].config(text="Account Number does not exist")
         return False
     index = read.index[read["A/C No:"] == int(ac)].tolist()[0]  # Find the index of the account number
 
@@ -1118,7 +1016,6 @@ def New_Update(ac_no_var=None, old_sign=None, new_sign=None, name=None, mobile_n
             if Validation.Sign(new_sign):
                 invalids[3].config(text="")
                 read.at[index, "Sign:"] = new_sign
-                msg.showinfo("Information", f"Signature Updated to {new_sign}")
                 updated = True
             else:
                 invalids[3].config(text="Invalid Signature", fg="red")
@@ -1130,7 +1027,6 @@ def New_Update(ac_no_var=None, old_sign=None, new_sign=None, name=None, mobile_n
             if Validation.Mobile(mobile_no):
                 invalids[4].config(text="")
                 read.at[index, "Mobile_No:"] = mobile_no
-                msg.showinfo("Information", f"Mobile Number Updated to {mobile_no}")
                 updated = True
             else:
                 invalids[4].config(text="Invalid Mobile Number", fg="red")
@@ -1141,19 +1037,17 @@ def New_Update(ac_no_var=None, old_sign=None, new_sign=None, name=None, mobile_n
         if updated:
             read.to_csv(Acounts_file, index=False)
             close_toplevel(topleve)
+            msg.showinfo("Information", "Acount details Successfully Updated ")
         else:
 
             invalids[5].config(text="No changes were made!",fg="red")
-            # invalids[2].config(text="Invalid Name", fg="red")
-            # Entries[2].focus_set()
-            # invalids[3].config(text="Invalid Signature", fg="red")
-            # invalids[4].config(text="Invalid Mobile Number", fg="red")
+            Entries[2].focus_set()
+            
             return
                 
     else:
         invalids[1].config(text="Signature is not Valid!",fg='red')
         Entries[1].focus_set()
-
 
 def edit_ac():
     # Create a secondary window using Toplevel
@@ -1217,12 +1111,14 @@ def edit_ac():
     # Bind keyboard events for navigating between entries
     for entry in (entries):
         entry.bind("<Return>", lambda event: focus_next_entry(event, entries,ac_no_var=ac_no_var,sign_var=sign_entry,
-                                                              new_sign_var=new_sign_entry,name_var=name_entry,check='update',Msg=invalids_msg,Toplevel=Toplevel))
+                                                              new_sign_var=new_sign_entry,name_var=name_entry,
+                                                              check='update',Msg=invalids_msg,Toplevel=Toplevel))
         entry.bind("<Up>", lambda event : Arrow_keys(event, entries,))
         entry.bind("<Down>", lambda event : Arrow_keys(event, entries,))
 
     # Submit button for updating account information
-    submit_btn = tk.Button(mini, text="Submit", font=("Arial", 10),command=lambda : New_Update(ac_no_var,sign_entry,new_sign_entry,name_entry,mobile_entry,entries,invalids_msg,Toplevel))
+    submit_btn = tk.Button(mini, text="Submit", font=("Arial", 10),command=lambda : New_Update(ac_no_var,sign_entry,new_sign_entry,
+                                                                                               name_entry,mobile_entry,entries,invalids_msg,Toplevel))
     submit_btn.grid(row=10, column=0, pady=10, columnspan=2)
 
     mini.grab_set() 
@@ -1230,57 +1126,51 @@ def edit_ac():
     mini.mainloop()
 
 
-
-def Acounts():
-    Secret_key="1542"
-    def load_csv():
-        
-        load_button.destroy()
-        
-    # Open the CSV file and read its content
-        with open(Acounts_file) as file:
-            read = csv.reader(file)
-            headers = next(read)
-           
-        # Define the columns in the treeview
-            tree["columns"] = headers
-            tree["show"] = "headings"  # Hide the default empty first column
-            max_col_widths = {header: len(header) for header in headers}
-            for headdings in headers:
-                tree.heading(headdings, text=headdings,anchor='nw',)
-                
-        # Create the headers in the treeview
-            for row in read:
-                for idx, value in enumerate(row):
-                    col_width = max(max_col_widths[headers[idx]], len(value))
-                    max_col_widths[headers[idx]] = col_width
-                tree.insert("", "end", values=row)
-
-            tree['height']=20
-    def remove_secret_keys():
-        """Function to remove the Secret_key label, entry field, invalid label, and button."""
-        Secret_key.grid_remove()
-        Secret_key_Entry.grid_remove()
-        Secret_key_invalid.grid_remove()
-        chk.grid_remove()
-
-    def valid():
+def load_csv(Secret_key_Entry,lable,button,invalid,tree,event=None):
         Secret_key="1542"
-        enter_key=(Secret_key_Entry.get())
-        
+        enter_key=Secret_key_Entry.get()
         if Secret_key_Entry.get()=='':
-            msg.showerror("Error", "Please enter the secret key!")
+            invalid.config(text= "Please enter the secret key!",fg='red')
             Secret_key_Entry.focus_set()
             return
         
-        if enter_key==Secret_key:
-            remove_secret_keys()
-            load_button.config(state='active',bg='light green')
-        else:
+        if enter_key!=Secret_key:
             Secret_key_Entry.focus_set()
-            load_button.config(state='disabled',bg='SystemButtonFace')
-            Secret_key_invalid.config(text="Entered Key is Wrong!!")
-        # Create the main Tkinter window
+            button.config(bg='SystemButtonFace')
+            invalid.config(text="Entered Key is Wrong!!")
+            return False
+
+        else:
+            lable.destroy()
+            Secret_key_Entry.grid_remove()
+            invalid.grid_remove()
+            button.grid_remove()
+            # button.config(state='active',bg='light green')
+           
+            data=tree
+    # Open the CSV file and read its content
+            with open(Acounts_file) as file:
+                read = csv.reader(file)
+                headers = next(read)
+           
+        # Define the columns in the treeview
+                data["columns"] = headers
+                data["show"] = "headings"  # Hide the default empty first column
+                max_col_widths = {header: len(header) for header in headers}
+                for headdings in headers:
+                    data.heading(headdings, text=headdings,anchor='nw',)
+                
+        # Create the headers in the treeview
+                for row in read:
+                    for idx, value in enumerate(row):
+                        col_width = max(max_col_widths[headers[idx]], len(value))
+                        max_col_widths[headers[idx]] = col_width
+                    data.insert("", "end", values=row)
+
+                data['height']=20
+
+def Acounts():
+
     mini = tk.Toplevel()
     mini.title("Acounts detaills")
 
@@ -1300,16 +1190,13 @@ def Acounts():
     Secret_key_Entry = tk.Entry(mini, width=30, textvariable=Secret_key_var)
     Secret_key_Entry.grid(row=1,column=1)
     Secret_key_Entry.focus_set()
-    Secret_key_Entry.bind("<Return>",lambda event : valid())
+   
     Secret_key_invalid=tk.Label(mini,font=('Arial'),fg='red')
     Secret_key_invalid.grid(row=2,column=1)
-    chk=tk.Button(mini,text='check',font=('Arial',13,'bold'),command=valid)
-    chk.grid(row=1,column=2,padx=20,pady=20)
 
-    # Create a button to load the specific CSV file
-    load_button = tk.Button(mini, text="Click To Open File", command=load_csv,state='disabled',font=('Arial',13,'bold'))
-    load_button.grid(row=3,column=0,padx=10,pady=10,columnspan=2)
-
+    submit_btn=tk.Button(mini,text='Submit & Open_file',font=('Arial',13,'bold'),command=lambda:load_csv(Secret_key_Entry,Secret_key,submit_btn,Secret_key_invalid,tree))
+    submit_btn.grid(row=1,column=2,padx=20,pady=20)
+    Secret_key_Entry.bind("<Return>",lambda event:load_csv(Secret_key_Entry,Secret_key,submit_btn,Secret_key_invalid,tree,event=event))
     
     mini.resizable(True,True)
     mini.mainloop()
