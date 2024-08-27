@@ -16,7 +16,7 @@ params.filterByInertia = False
 detector = cv2.SimpleBlobDetector_create(params)
 
 # Load an image in grayscale
-img = cv2.imread('dog.jpg', cv2.IMREAD_GRAYSCALE)
+img = cv2.imread('dog.jpg',0)
 
 # Detect blobs
 keypoints = detector.detect(img)

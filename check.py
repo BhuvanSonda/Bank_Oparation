@@ -225,14 +225,14 @@ def create_valid(entries,toplevel=None,mobile_var=None,adhar_var=None,amount_var
     sign = sign_var.get()
     invalids=Message #invalids=[name_invalid_msg, amount_invalid_msg, sign_invalid_msg, mobile_invalid_msg, adhar_invalid_msg]
     if init_balance=="" or mobile_no=="" or adhar_no=="" or name=='' or sign=='' or AC_TYPE=='':
-            invalids[6].config(text=" Please fill the all fields",fg="red")#if ente
+            invalids[6].config(text=" Please fill in all the fields.",fg="red")#if ente
             return False
     else:
         invalids[6].config(text='')
 
     if not Validation.Name(name):
         a = 0
-        invalids[0].config(text=" Invalid name",fg="red")#if enter name  is not match the formate of name the it arise error msg
+        invalids[0].config(text=" Invalid name Entry",fg="red")#if enter name  is not match the formate of name the it arise error msg
         entries[0].focus_set()
         return False
     else:
@@ -241,7 +241,7 @@ def create_valid(entries,toplevel=None,mobile_var=None,adhar_var=None,amount_var
     # Validate Amount
     if not Validation.Amount(init_balance):
         a = 0
-        invalids[1].config(text="entered  amount must be digits",fg="red")#if enter amount  is not match the formate of amount the it arise error msg
+        invalids[1].config(text="The entered amount must be digits",fg="red")#if enter amount  is not match the formate of amount the it arise error msg
         entries[1].focus_set()
         return False
     else:
@@ -249,7 +249,7 @@ def create_valid(entries,toplevel=None,mobile_var=None,adhar_var=None,amount_var
 
     if not Validation.Sign(sign):
         a=0
-        invalids[2].config(text="entered  amount must be digits",fg="red")#if enter sign  is  not match the formate of sign the it remove the  error msg
+        invalids[2].config(text="Signature is not valid",fg="red")#if enter sign  is  not match the formate of sign the it remove the  error msg
         entries[2].focus_set()
         return False
     else:
@@ -258,7 +258,7 @@ def create_valid(entries,toplevel=None,mobile_var=None,adhar_var=None,amount_var
         # Validate Mobile Number
     if not Validation.Mobile(mobile_no):
         a = 0
-        invalids[3].config(text="entered  mobile number is not valid",fg="red")
+        invalids[3].config(text="The entered  mobile number is not valid",fg="red")
         entries[3].focus_set()
         return False
     else:
@@ -267,7 +267,7 @@ def create_valid(entries,toplevel=None,mobile_var=None,adhar_var=None,amount_var
         # Validate Aadhar Number
     if not Validation.Adhar(adhar_no):
         a = 0
-        invalids[4].config(text="entered  Adhar number is not valid",fg="red")
+        invalids[4].config(text="The entered  Adhar number is not valid",fg="red")
         entries[4].focus_set()
         return False
     else:  
@@ -404,7 +404,7 @@ def deposit_valid(entries, toplevel=None, amount_var=None, ac_no_var=None, Sub_b
     # Check if any of the fields are empty
     if amt == "" or ac_no == "":
         a = 0  # Set flag to 0, indicating validation failure
-        invalid_msg[2].config(text="Please fill all the fields", fg="red")  # Show message to fill all fields
+        invalid_msg[2].config(text="Please fill in  all the fields", fg="red")  # Show message to fill all fields
         return False
     else:
         invalid_msg[2].config(text='')  # Clear the validation message if fields are filled
@@ -517,7 +517,7 @@ def remove_valid(entries, toplevel=None, mobile_no=None, adhar_no=None, ac_no_va
 
     # Check if any of the required fields are empty
     if ac_no == "" or mobile_no == "" or adhar_no == "" or name == "" or sign == '' or reason == '':
-        invalid_msg[7].config(text="Please fill all the fields", fg="red")
+        invalid_msg[7].config(text="Please fill in all the fields", fg="red")
         return False  # Exit function early if any field is empty
     invalid_msg[7].config(text="")  # Clear any error message for empty fields
 
@@ -541,7 +541,7 @@ def remove_valid(entries, toplevel=None, mobile_no=None, adhar_no=None, ac_no_va
     # Validate the signature
     if not Validation.Sign(sign):
         a = 0   
-        invalid_msg[2].config(text="Invalid signature", fg='red')  # Show error message for invalid signature
+        invalid_msg[2].config(text="Invalid signature Entry", fg='red')  # Show error message for invalid signature
         entries[2].focus_set()  # Set focus back to the signature entry field for correction
         return False    
     else:
@@ -550,7 +550,7 @@ def remove_valid(entries, toplevel=None, mobile_no=None, adhar_no=None, ac_no_va
     # Validate Mobile Number
     if not Validation.Mobile(mobile_no):
         a = 0  # Set validation flag to 0 indicating failure
-        invalid_msg[3].config(text="Invalid mobile number", fg='red')  # Show error message for invalid mobile number
+        invalid_msg[3].config(text="The entered  mobile number is not valid", fg='red')  # Show error message for invalid mobile number
         entries[3].focus_set()  # Set focus back to the mobile number entry field for correction
         return False    
     else:
@@ -559,7 +559,7 @@ def remove_valid(entries, toplevel=None, mobile_no=None, adhar_no=None, ac_no_va
     # Validate Aadhar Number
     if not Validation.Adhar(adhar_no):
         a = 0   
-        invalid_msg[4].config(text="Invalid adhar number", fg='red')  # Show error message for invalid Aadhar number
+        invalid_msg[4].config(text="The entered  Adhar number is not valid", fg='red')  # Show error message for invalid Aadhar number
         entries[4].focus_set()  # Set focus back to the Aadhar number entry field for correction
         return False    
     else:
@@ -703,7 +703,7 @@ def remove_ac():
     submit_invalid_msg.grid(row=17,column=0,padx=10,pady=10,columnspan=3)
 
     # List of entry widgets and corresponding invalid message labels for validation purposes
-    entries = [name_entry, ac_no_Entry, sign_entry, mobile_entry, adhar_entry,reason_entry]
+    entries = [name_entry, ac_no_Entry, sign_entry, mobile_entry, adhar_entry]
     invalid_msg=[name_invalid_msg,ac_no_invalid_msg,sign_invalid_msg,mobile_invalid_msg,adhar_invalid_msg,
              reason_invalid_msg,radio_invalid_msg,submit_invalid_msg]
 
@@ -1032,7 +1032,7 @@ def focus_next_entry(event=None, entries=None, Toplevel=None, mobile_var=None, a
         Ac = ac_type.get()
 
         # Check if any required field is empty; if so, do nothing
-        if ac_no == "" or mbl == "" or adr == "" or nm == "" or sign == '' or reason == '':
+        if ac_no == "" or mbl == "" or adr == "" or nm == "" or sign == '':
             return False
         else:
             # Call the function to validate and remove an account if all fields are filled
