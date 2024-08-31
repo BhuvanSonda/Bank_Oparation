@@ -281,7 +281,7 @@ def create_valid(entries,toplevel=None,mobile_var=None,adhar_var=None,amount_var
         return
     if a == 1: #once all validation is true then it is enter this contdition
          # Call the create function from BankOperations to create a new account
-            BankOperations.create(name, sign, int(init_balance), mobile_no, adhar_no, AC_TYPE)
+            BankOperations.create(name, sign, float(init_balance), mobile_no, adhar_no, AC_TYPE)
             close_toplevel(toplevel)  # Close the current Toplevel window')
 
 def create_account():
@@ -430,7 +430,7 @@ def deposit_valid(entries, toplevel=None, amount_var=None, ac_no_var=None, Sub_b
     # If all validations pass (`a` is still 1)
     if a == 1:
         # Call the deposit function from `BankOperations` class and store the returned details
-        details = BankOperations.deposit(int(ac_no), int(amt))
+        details = BankOperations.deposit(int(ac_no), float(amt))
         
         # Check if the deposit operation returned "Account_not_found"
         if details == "Account_not_found":
@@ -1082,7 +1082,7 @@ def New_Update(ac_no_var=None, old_sign=None, new_sign=None, name=None, mobile_n
     # Check if the account number exists in the CSV file
     if int(ac) not in read["A/C No:"].values:
         Entries[0].focus_set()
-        invalids[0].config(text="Account Number does not exist")
+        invalids[0].config(text="Account Number does not exist",fg='red')
         return False
     
     # Find the index of the account number in the CSV file

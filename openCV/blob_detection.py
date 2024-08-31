@@ -3,7 +3,7 @@ import numpy as np
 
 # Initialize parameters for blob detection
 params = cv2.SimpleBlobDetector_Params()
-print(params)
+
 # Set parameters 
 params.filterByArea = True#Only blobs with a certain area are considered
 params.minArea = 100#Sets the minimum area for a blob to be detected
@@ -14,7 +14,7 @@ params.filterByInertia = False
 
 # Create a blob detector with the specified parameters
 detector = cv2.SimpleBlobDetector_create(params)
-
+print("")
 # Load an image in grayscale
 img = cv2.imread('dog.jpg',0)
 

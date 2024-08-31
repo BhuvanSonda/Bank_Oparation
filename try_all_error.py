@@ -1,60 +1,85 @@
-# def load_csv(Secret_key_Entry,button,invalid,tree):
-#         Secret_key="1542"
-#         if Secret_key_Entry.get()=='':
-#             invalid.config(text= "Please enter the secret key!",fg='red')
-#             Secret_key_Entry.focus_set()
-#             return
-        
-#         if enter_key!=Secret_key:
-#             Secret_key_Entry.focus_set()
-#             button[1].config(state='disabled',bg='SystemButtonFace')
-#             invalid.config(text="Entered Key is Wrong!!")
-#             return False
+# import cv2
+# import numpy as np
+# import matplotlib.pyplot as plt
 
-#         else:
-#             Secret_key.grid_remove()
-#             Secret_key_Entry.grid_remove()
-#             invalid.grid_remove()
-#             button[0].grid_remove()
-#             button[1].config(state='active',bg='light green')
-           
-#             data=tree
-#     # Open the CSV file and read its content
-#             with open(Acounts_file) as file:
-#                 read = csv.reader(file)
-#                 headers = next(read)
-           
-#         # Define the columns in the treeview
-#                 data["columns"] = headers
-#                 data["show"] = "headings"  # Hide the default empty first column
-#                 max_col_widths = {header: len(header) for header in headers}
-#                 for headdings in headers:
-#                     data.heading(headdings, text=headdings,anchor='nw',)
-                
-#         # Create the headers in the treeview
-#                 for row in read:
-#                     for idx, value in enumerate(row):
-#                         col_width = max(max_col_widths[headers[idx]], len(value))
-#                         max_col_widths[headers[idx]] = col_width
-#                     data.insert("", "end", values=row)
+# # Load an example image
+# image = cv2.imread('famer.jpg')
 
-#                 data['height']=20
+# # Convert image to RGB format for displaying using matplotlib (OpenCV uses BGR format)
+# image_rgb = cv2.cvtColor(image, cv2.COLOR_BGR2GRAY)
 
+# # Gaussian Blur with different sigma values
+# gaussian_blur_sigma1 = cv2.GaussianBlur(image, (15, 15), sigmaX=1)
+# gaussian_blur_sigma5 = cv2.GaussianBlur(image, (15, 15), sigmaX=5)
 
-    
+# # Bilateral Filter with different sigma values
+# bilateral_filter_sigma10 = cv2.bilateralFilter(image, d=9, sigmaColor=10, sigmaSpace=10)
+# bilateral_filter_sigma50 = cv2.bilateralFilter(image, d=9, sigmaColor=500, sigmaSpace=500)
 
-# Secret_key="1542"
-#         enter_key=(Secret_key_Entry.get())
-        
-#         if Secret_key_Entry.get()=='':
-#             msg.showerror("Error", "Please enter the secret key!")
-#             Secret_key_Entry.focus_set()
-#             return
-        
-#         if enter_key==Secret_key:
-#             remove_secret_keys()
-#             load_button.config(state='active',bg='light green')
-#         else:
-#             Secret_key_Entry.focus_set()
-#             load_button.config(state='disabled',bg='SystemButtonFace')
-#             Secret_key_invalid.config(text="Entered Key is Wrong!!")
+# # Convert blurred images to RGB for displaying
+# gaussian_blur_sigma1_rgb = cv2.cvtColor(gaussian_blur_sigma1, cv2.COLOR_BGR2RGB)
+# gaussian_blur_sigma5_rgb = cv2.cvtColor(gaussian_blur_sigma5, cv2.COLOR_BGR2RGB)
+# bilateral_filter_sigma10_rgb = cv2.cvtColor(bilateral_filter_sigma10, cv2.COLOR_BGR2RGB)
+# bilateral_filter_sigma50_rgb = cv2.cvtColor(bilateral_filter_sigma50, cv2.COLOR_BGR2RGB)
+
+# # Display the images
+# plt.figure(figsize=(12, 8))
+
+# plt.subplot(2, 3, 1)
+# plt.imshow(image_rgb)
+# plt.title('Original Image')
+# plt.axis('off')
+
+# plt.subplot(2, 3, 2)
+# plt.imshow(gaussian_blur_sigma1_rgb)
+# plt.title('Gaussian Blur, Sigma = 1')
+# plt.axis('off')
+
+# plt.subplot(2, 3, 3)
+# plt.imshow(gaussian_blur_sigma5_rgb)
+# plt.title('Gaussian Blur, Sigma = 5')
+# plt.axis('off')
+
+# plt.subplot(2, 3, 5)
+# plt.imshow(bilateral_filter_sigma10_rgb)
+# plt.title('Bilateral Filter, Sigma = 10')
+# plt.axis('off')
+
+# plt.subplot(2, 3, 6)
+# plt.imshow(bilateral_filter_sigma50_rgb)
+# plt.title('Bilateral Filter, Sigma = 50')
+# plt.axis('off')
+
+# plt.show()
+import cv2
+import numpy as np
+
+# Load the main image and the template image in grayscale
+image = cv2.imread('famer.jpg', )
+template = cv2.imread('famer_animal.jpg', 0)
+
+# Check if images are loaded successfully
+if image is None or template is None:
+    print("Error loading images.")
+    exit()
+
+# Get the dimensions of the template image
+h, w = template.shape
+
+# Perform template matching using the normalized cross-correlation method
+result = cv2.matchTemplate(image, template, cv2.TM_CCOEFF_NORMED)
+
+# Set a threshold for the template matching results
+threshold = 0.8
+
+# Find locations in the result array where values are above the threshold
+locations = np.where(result >= threshold)
+
+# Draw rectangles around matched regions on the original image
+for pt in zip(*locations[::-1]):
+    cv2.rectangle(image, pt, (pt[0] + w, pt[1] + h), (0, 255, 0), 2)
+
+# Display the result with detected regions
+cv2.imshow('Detected Template', image)
+cv2.waitKey(0)
+cv2.destroyAllWindows()
