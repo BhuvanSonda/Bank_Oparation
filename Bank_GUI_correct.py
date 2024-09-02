@@ -1325,7 +1325,7 @@ def Acounts():
 
 
 # for creat Bank Operation  main window
-# Initialize the main window
+
 window = tk.Tk()
 
 # Get screen width and height to set the window size to full screen

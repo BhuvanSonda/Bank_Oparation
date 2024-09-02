@@ -1007,7 +1007,7 @@ def focus_next_entry(event=None, entries=None, Toplevel=None, mobile_var=None, a
             return False
         else:
             # Call the function to validate and process withdrawal if all fields are filled
-            with_draw_fun_res = withdraw_valid(entries, Toplevel, amount_var, ac_no_var, sign_var, ac_type, Msg)
+           withdraw_valid(entries, Toplevel, amount_var, ac_no_var, sign_var, ac_type, Msg)
 
     elif check == 'deposit':
         # Retrieve the values for deposit operation
@@ -1119,7 +1119,7 @@ def New_Update(ac_no_var=None, old_sign=None, new_sign=None, name=None, mobile_n
         if mobile_no:
             if Validation.Mobile(mobile_no):  # Validate the mobile number
                 invalids[4].config(text="")
-                read.at[index, "Mobile_No:"] = mobile_no  # Update the mobile number in the CSV data
+                read.at[index, "Mobile_No:"] = int(mobile_no)  # Update the mobile number in the CSV data
                 updated = True
             else:
                 invalids[4].config(text="Invalid Mobile Number", fg="red")

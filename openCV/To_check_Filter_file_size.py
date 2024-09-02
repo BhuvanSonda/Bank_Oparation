@@ -7,7 +7,6 @@ gaussian_blur = cv2.GaussianBlur(image, (15, 15),5)
 
 bilateral_filter = cv2.bilateralFilter(image, 10, 175, 175)
 
-# Save the filtered images
 cv2.imwrite('gaussian_blur.jpg', gaussian_blur)
 cv2.imwrite('bilateral_filter.jpg', bilateral_filter)
 
@@ -16,7 +15,6 @@ cv2.imshow('bilateral_filter.jpg', bilateral_filter)
 cv2.waitKey(0)
 cv2.destroyAllWindows()
 
-# Get the file sizes
 original_size = os.path.getsize('openCV/cat.jpg')
 print(f"Original Image Size: {original_size} bytes")
 

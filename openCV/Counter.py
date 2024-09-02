@@ -2,22 +2,18 @@ import cv2 as cv
 import numpy as np
 import matplotlib.pyplot as plt
 
-img= cv.imread("openCV/cat.jpg",0)
-
-
-ret,binary=cv.threshold(img,100,255,cv.THRESH_BINARY)
-
-counters,hierarchy=cv.findContours(binary,cv.RETR_LIST,cv.CHAIN_APPROX_NONE)
-cv.drawContours(img,counters,-1,(0,225,0),2)
-# print(hierarchy)
+img = cv.imread("temple_run.jpg", 0)
+colored_img = cv.cvtColor(img, cv.COLOR_GRAY2BGR)
+ret, binary = cv.threshold(img, 100, 255, cv.THRESH_BINARY)
+contours, hierarchy = cv.findContours(binary, cv.RETR_EXTERNAL, cv.CHAIN_APPROX_SIMPLE)
+cv.drawContours(colored_img, contours, -1, (0, 0, 255), 2)
 
 plt.subplot()
-plt.imshow(img)
-plt.title('Original Image')
+plt.imshow(colored_img)
+plt.title('Original Image with Contours')
 plt.axis('off')
 
-
-cv.imshow("Counters",img)
+cv.imshow("Contours", colored_img)
 plt.show()
 cv.waitKey(0)
 cv.destroyAllWindows()
