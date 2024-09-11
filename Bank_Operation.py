@@ -2,7 +2,6 @@ import datetime as dt
 import pandas as pd
 import re
 
-FILE='data_1.csv'
 class Update:
    
     def update(name, account_no, sign, init_balance,mobile_no,adhar_no,time):
@@ -16,10 +15,8 @@ class Update:
             "Time:": [time]}
         df = pd.DataFrame(new_entry)
 
-        if pd.io.common.file_exists(FILE):
-            df.to_csv(FILE, mode="a", index=False, header=False)
-        else:
-            df.to_csv(FILE, mode="w", index=False)
+        df.to_csv("data.csv", mode="a+", index=False, header=not pd.io.common.file_exists("data.csv")) if pd.io.common.file_exists("data.csv") else df.to_csv("data.csv",mode="w+",index=False,)
+        
 
 class Validation:
     def Mobile():
@@ -40,30 +37,20 @@ class Validation:
             return Validation.Adhar()
         
 
-#OERATIONS OF BANKUSCASE'S
 class BankOperations:
     def __init__(self):
-        self.read = pd.read_csv(FILE) if pd.io.common.file_exists(FILE) else pd.DataFrame(columns=["Names", "A/C No:", "Balance :", "Sign:","Mobile_No:",'Adhar_No:',"Time:"])
+        self.read = pd.read_csv("data.csv") if pd.io.common.file_exists("data.csv") else pd.DataFrame(columns=["Names", "A/C No:", "Balance :", "Sign:","Mobile_No:",'Adhar_No:',"Time:"])
     
-    #FUNCTION TO ASSIGN AC_NUMBER FOR THE USER
     def ac_generator(self):
-        #Which reads CSV file
-        self.read = pd.read_csv(FILE) if pd.io.common.file_exists(FILE) else pd.DataFrame(columns=["Names", "A/C No:", "Balance :", "Sign:","Mobile_No:",'Adhar_No:',"Time:"])
-        
-        result = 100
-        #Verifying the AC_Number is empty or filled
+        self.read = pd.read_csv("data.csv") if pd.io.common.file_exists("data.csv") else pd.DataFrame(columns=["Names", "A/C No:", "Balance :", "Sign:","Mobile_No:",'Adhar_No:',"Time:"])
+      
         if self.read["A/C No:"].empty:
-            result = 100
-            # return 100
+            return 100
         else:
             ac=0
             for i in self.read["A/C No:"].values:
                 ac=i
-            # return (ac+1)
-            result = ac+1
-        
-
-        return result
+            return (ac+1)
             
 
     def create(self):
@@ -96,7 +83,7 @@ class BankOperations:
                 amount = int(input("Enter amount: "))
                 index = self.read.index[self.read["A/C No:"] == account_no].tolist()[0]
                 self.read.at[index, "Balance :"] += amount
-                self.read.to_csv(FILE, index=False)
+                self.read.to_csv("data.csv", index=False)
                 print("--"*15)
                 print("Your account has been successfully deposited.")
                 print(f"Your account balance is {self.read.at[index, 'Balance :']}")
@@ -144,7 +131,7 @@ class BankOperations:
                     amount = int(input("Enter amount: "))
                     if self.read.at[index, "Balance :"] >= amount:
                         self.read.at[index, "Balance :"] -= amount
-                        self.read.to_csv(FILE, index=False)
+                        self.read.to_csv("data.csv", index=False)
                         print("--"*15)
                         print("Your account has been successfully withdrawn.")
                         print(f"Your account balance is {self.read.at[index, 'Balance :']}")
@@ -163,7 +150,7 @@ class BankOperations:
                                 amount = int(input("Enter valid amount: "))
                                 if amount > 0 and self.read.at[index, "Balance :"] >= amount:
                                     self.read.at[index, "Balance :"] -= amount
-                                    self.read.to_csv(FILE , index=False)
+                                    self.read.to_csv("data.csv", index=False)
                                     print("--" * 15)
                                     print("Your account has been successfully withdrawn.")
                                     print(f"Your account balance is {self.read.at[index, 'Balance :']}")
