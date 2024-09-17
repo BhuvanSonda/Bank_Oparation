@@ -1,8 +1,10 @@
 import xlsxwriter as xlw
 
-workbook=xlw.Workbook('expense.xlsx')#create workbook
+workbook=xlw.Workbook('multiple_sheet.xlsx')#create workbook
 
 sheet=workbook.add_worksheet('September')#create sheet in workbook
+
+sheet2=workbook.add_worksheet('october')#create sheet in workbook
 
 #initialize data
 data=(
@@ -20,6 +22,8 @@ bold=workbook.add_format({'bold':True,"bg_color":"red"})
 #headdings
 sheet.write('A1','Expense',bold)
 sheet.write('B1','Amount',bold)
+sheet2.write('A1','Expense',bold)
+sheet2.write('B1','Amount',bold)
 
 row=1
 col=0

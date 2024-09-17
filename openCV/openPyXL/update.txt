@@ -1,0 +1,45 @@
+openpyxl:
+
+    Openpyxl Write Data to Cell ----> Workbook()
+    Openpyxl Reading Excel File ---->load_workbook()
+    Openpyxl Read Data from Cell ---->x=sheet['A1']
+    Openpyxl Read Multiple Cells ---->range=sheet['A1:B7']
+    Openpyxl Sheets
+    Openpyxl Merging cells---->merge()
+    Openpyxl Append Values
+    Openpyxl Iterate by Column
+    Openpyxl Iterate by rows
+    Openpyxl Adding chart to Excel file
+    Openpyxl Adding Tables to Excel file
+    Openpyxl Adding Image
+
+
+
+
+        * create work book and sheets
+        * read and write data to cells
+        * formatting cells
+        
+        * create charts
+        * create tables
+        * conditional formate 
+           *  builtin
+                * colorscale
+                * iconset
+            * standard
+            * custom
+
+xlsxwriter:
+   *  Workbook class:
+        * create work book and sheets 
+        * add_charts
+        * close
+        * table_ratio
+
+    * worksheet class
+        * write formula
+        * write boolean
+        * write array formula
+        * write url
+        * autofit
+    

@@ -29,8 +29,8 @@ for row in data:
 tab = Table(displayName='Table_1', ref='A1:C19')
 
 # Define the table style
-style = TableStyleInfo(name="TableStyleMedium9", showFirstColumn=False,
-                       showLastColumn=False, showRowStripes=True, showColumnStripes=True)
+style = TableStyleInfo(name="TableStyleMedium6", showFirstColumn=True,
+                       showLastColumn=True, showRowStripes=True, showColumnStripes=True)
 
 # Apply the table style to the table
 tab.tableStyleInfo = style

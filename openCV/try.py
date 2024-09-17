@@ -36,3 +36,52 @@ gray_pixel = gray_image[10, 100]    # Grayscale value at position (100, 100)
 
 print(f"Color Pixel: {color_pixel}")
 print(f"Grayscale Pixel : {gray_pixel}")
+
+
+import pandas as pd
+import os
+
+class Update:
+    @staticmethod
+    def AC_entry(name, account_no, sign, init_balance, mobile_no, adhar_no, time, ac_type, accounts_file):
+        new_entry = {
+            "Names": [name],
+            "A/C No:": [account_no],
+            "Balance:": [init_balance],
+            "Sign:": [sign],
+            "Mobile_No:": [mobile_no],
+            "Adhar_No:": [adhar_no],
+            "Time:": [time],
+            "AC_TYPE": [ac_type]
+        }
+        df = pd.DataFrame(new_entry)
+        
+        # Append to the file if it exists
+        if os.path.isfile(accounts_file):
+            with pd.ExcelWriter(accounts_file, engine='openpyxl', mode='a', if_sheet_exists='overlay') as writer:
+                df.to_excel(writer, index=False, header=False, startrow=writer.sheets['Sheet1'].max_row)
+        else:
+            with pd.ExcelWriter(accounts_file, engine='openpyxl', mode='w') as writer:
+                df.to_excel(writer, index=False)
+
+    @staticmethod
+    def closed(name, account_no, sign, mobile_no, adhar_no, time, reason, closed_file):
+        entry = {
+            "Names": [name],
+            "A/C No:": [account_no],
+            "Sign:": [sign],
+            "Mobile_No:": [mobile_no],
+            "Adhar_No:": [adhar_no],
+            "Time:": [time],
+            "Reason": [reason]
+        }
+        df = pd.DataFrame(entry)
+        
+        # Append to the file if it exists
+        if os.path.isfile(closed_file):
+            with pd.ExcelWriter(closed_file, engine='openpyxl', mode='a', if_sheet_exists='overlay') as writer:
+                df.to_excel(writer, index=False, header=False, startrow=writer.sheets['Sheet1'].max_row)
+        else:
+            with pd.ExcelWriter(closed_file, engine='openpyxl', mode='w') as writer:
+                df.to_excel(writer, index=False)
+

@@ -24,5 +24,6 @@ for name,age,edu in data:
     row+=1
 
 workbook.add_chartsheet('new_one')
+workbook.set_tab_ratio(75)
 
 workbook.close()
