@@ -1,6 +1,9 @@
+import time
 import xlsxwriter as xlwriter
 import sys
 import os
+
+strt_time=time.time()
 
 # Adjust path to include directory containing create_folder.py
 sys.path.insert(0, os.path.abspath(os.path.dirname('create_folder.py')))
@@ -28,3 +31,7 @@ sheet.write('A4',4)
 sheet.autofit()
 
 workbook.close()
+
+end_time=time.time()
+time_taken=end_time-strt_time
+print(f'Code Excusion time is :{time_taken} seconds')
