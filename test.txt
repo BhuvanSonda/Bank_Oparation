@@ -1,0 +1,23 @@
+TypeError: db.find is not a function
+time> db.getSiblingDB()
+MongoshInvalidInputError: [COMMON-10001] Missing required argument at position 0 (Database.getSiblingDB)
+time> db.getSiblingDB(time)
+ReferenceError: time is not defined
+time>
+
+
+
+
+
+
+time> db.data.find()
+[
+  {
+    _id: ObjectId('66ee62ed84cf0bbd8dc73bf8'),
+    date: 'Tue Sep 24 2024 14:48:47 GMT+0530 (India Standard Time)',
+    likes: 12,
+    post: 'Suspence'
+  },
+
+
+  date: ISODate('2024-09-24T09:24:38.214Z'),

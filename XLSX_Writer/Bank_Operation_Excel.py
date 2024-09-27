@@ -56,10 +56,10 @@ class Update:
         else:
             with pd.ExcelWriter(Acounts_file, engine='openpyxl', mode='w') as writer:
                 df.to_excel(writer, index=False)
-                wb=xl.load_workbook(Acounts_file)
-                sheet=wb.active
-                fill=PatternFill('solid',bgColor='f5aa42')
-                sheet['A1','B1','C1','D1','E1','F1','H1'].fill=fill
+                # # wb=xl.load_workbook(Acounts_file)
+                # sheet=wb.active
+                # fill=PatternFill('solid',bgColor='f5aa42')
+                # sheet['A1','B1','C1','D1','E1','F1','H1'].fill=fill
     @staticmethod
     def closed(name, account_no, sign, mobile_no, adhar_no, time, reason):
         entry = {

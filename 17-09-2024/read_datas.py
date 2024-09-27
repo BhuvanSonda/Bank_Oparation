@@ -3,14 +3,13 @@ import os
 import sys
 import time
 from openpyxl.drawing.image import Image
-
-
-# Adjust the path to include the directory where create_folder.py is located
+import numpy as np
+from openpyxl.utils import get_column_letter
 sys.path.insert(0, os.path.abspath(os.path.dirname("create_folder.py")))
 from create_folder import Add_File
 
 # Define the file name and path
-file = 'Data_single_mul_mix.xlsx'
+file = 'Data_single_mul_mix1.xlsx'
 file_path = Add_File(file)
 
 st_time = time.time()
@@ -68,11 +67,6 @@ data_mixed = [
 for row in data_mixed:
     sheet3.append(row)
 
-
-# List of images to be added
-images = ['openCV/cat.jpg'] * 3  # Repeat the same image path for demonstration
-# Identify the next column letter
-from openpyxl.utils import get_column_letter
 # Determine the last column by checking the first row
 last_column = sheet3.max_column
 last_column_letter = get_column_letter(last_column)
@@ -80,35 +74,36 @@ last_column_letter = get_column_letter(last_column)
 # Identify the next column letter
 next_column_letter = get_column_letter(last_column + 1)
 
-# Define image dimensions (in pixels) and convert to Excel units
-def resize_image_to_fit_cell(image, max_width, max_height):
-    scale = min(max_width / image.width, max_height / image.height)
+# Define image dimensions  
+def resize_image_to_fit_cell(image):
+    scale = 0.5#min(max_width / image.width, max_height / image.height)
     image.width = int(image.width * scale)
     image.height = int(image.height * scale)
+    width = int(image.width * scale)
+    height =int(image.height * scale)
+    return width, height
 
-# Number of rows to add images to
 last_row = sheet3.max_row
 
 # Add images to the next column
 for row_number in range(2, last_row + 1, 2):  # Start from row 2 and step by 2
-    immg = Image('openCV/cat.jpg')  # Path to the image
+    immg = Image('openCV/cat.jpg') 
 
-    # Set the maximum width and height for the images
-    max_width = 150  
-    max_height = 150 
+    # Set the width and height  of the images
+    max_width = 15  
+    max_height = 20 
 
-    # Resize image to fit within the cell
-    resize_image_to_fit_cell(immg, max_width, max_height)
+#get the width and the height
+    (max_width, max_height)=resize_image_to_fit_cell(immg)
     
     cell_position = f"{next_column_letter}{row_number}"
     immg.anchor = cell_position
     sheet3.add_image(immg)
     
     # Adjust row height and column width to fit images
-    sheet3.column_dimensions[next_column_letter].width = max_width / 7  # Approximate conversion factor
-    sheet3.row_dimensions[row_number].height = max_height * 0.75  # Approximate conversion factor
+    sheet3.column_dimensions[next_column_letter].width = max_width /2.5 
+    sheet3.row_dimensions[row_number].height = max_height*1.5  
 
-# Record start time and save the workbook
 
 workbook.save(file_path)
 
