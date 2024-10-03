@@ -1,0 +1,22 @@
+mongodb
+    today i worked on 
+        banking project with mongodb database
+            create
+            deposite
+            check
+            remove
+            update
+            get the acount holders list
+
+    friday
+    i worked on
+        create aggregation
+        database validation
+             wrote progams and practice
+                createdd management database and created colleg and school collection with validation
+                add documents to those collections
+30/9/20214
+
+            find query result data type and how can i access the result?
+                 'pymongo.synchronous.cursor.Cursor'>    what is the data type of this?
+                 pymongo.synchronous.cursor.Cursor object at 0x0000018797A4ABD0>    what does it mean?

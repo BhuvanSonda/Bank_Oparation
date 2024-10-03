@@ -17,13 +17,15 @@ for data in collections:
 
 
 
+
 for collection in collections:
+    print("-*-"*30,"\n")
     print(f"Searching in collection: {collection}")
     finder = db[collection].find(fnd)  # Use the query to find documents
-    print("\n")
+    print()
     for result in finder:
-        print(result)  # Print each document found
-        print("\n")
+        print(result,"\n")  # Print each document found
+
         
     
     
